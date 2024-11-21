@@ -59,7 +59,7 @@ const Navbar = () => {
 
   return (
     <nav className={"flex items-center justify-between mx-64 my-8"}>
-      <Button asChild variant={"link"}>
+      <Button asChild variant={"ghost"}>
         <a href={"/"}>Home</a>
       </Button>
       {!onVisualizer && (
