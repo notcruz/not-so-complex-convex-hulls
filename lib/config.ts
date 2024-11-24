@@ -17,7 +17,7 @@ export const algorithms: Algorithm[] = [
     name: "Jarvis Algorithm",
     description: "This is a description for Jarvis algorithm.",
     complexity: {
-      time: "O(n loh h)",
+      time: "O(n log h)",
       reasoning: "",
     },
     code: "print('jarvis')",
