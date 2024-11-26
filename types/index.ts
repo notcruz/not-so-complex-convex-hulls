@@ -12,18 +12,18 @@ export type AlgorithmDetails = {
 
 
 export interface Algorithm {
-  runNextStep(points: Readonly<Point[]>, edges: Readonly<Edge[]>): AlgorithmStep;
+  runNextStep(points: Readonly<Point[]>, edges: Readonly<Edge[]>): AlgorithmStep | undefined;
 
   hasNextStep(): boolean;
 }
 
 
 export type AlgorithmStep = {
-  // lines to higlight: 1-5
+  // lines to highlight: 1-5
   highlightLines: string;
 
   // points to highlight (ids)
-  highlighPoints: Entity['id'][];
+  highlightPoints: Entity['id'][];
 
   // edges to highlight (ids)
   highlightEdges: Entity['id'][];
@@ -31,6 +31,14 @@ export type AlgorithmStep = {
   points: Point[];
 
   edges: Edge[]
+}
+
+export const defaultStep: AlgorithmStep = {
+  highlightLines: "",
+  highlightPoints: [],
+  highlightEdges: [],
+  points: [],
+  edges: []
 }
 
 

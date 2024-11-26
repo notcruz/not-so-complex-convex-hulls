@@ -23,7 +23,7 @@ export class TestAlgorithm implements Algorithm {
       points: [...points, newPoint],
       edges: [...edges, newEdge],
       highlightLines: "",
-      highlighPoints: [newPoint.id],
+      highlightPoints: [newPoint.id],
       highlightEdges: [newEdge.id]
     }
   }

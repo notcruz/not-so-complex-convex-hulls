@@ -2,6 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { TestAlgorithm } from "@/lib/algorithms/TestAlgorithm";
+import { defaultStep } from "@/types";
+import { GrahamScan } from "@/lib/algorithms/graham";
 import { cn } from "@/lib/utils";
 import { algorithmAtom } from "@/state";
 import { Point, Edge, Algorithm } from "@/types";
@@ -100,7 +102,7 @@ const PickYourPoints = () => {
     if (started) return;
     const target = e.target as SVGElement;
     const rect = target.getBoundingClientRect();
-    createPoint(e.clientX - rect.left, e.clientY - rect.top)
+    createPoint(e.clientX - rect.left, rect.bottom - e.clientY)
   };
 
   const handleCursorNavigation = (e: MouseEvent<SVGElement>) => {
@@ -108,7 +110,7 @@ const PickYourPoints = () => {
 
     const rect = svgRect.current.getBoundingClientRect()
     const x = Math.ceil(Math.max(e.clientX - rect.left, 0))
-    const y = Math.ceil(Math.max(e.clientY - rect.top, 0))
+    const y = Math.ceil(Math.max(rect.bottom - e.clientY, 0))
     setCursorPosition({ x, y })
   }
 
@@ -127,7 +129,7 @@ const PickYourPoints = () => {
   }
 
   const play = () => {
-    const testAlgorithm = new TestAlgorithm();
+    const testAlgorithm = new GrahamScan({...defaultStep, points: points});
     setAlgo(testAlgorithm)
   }
 
@@ -138,13 +140,13 @@ const PickYourPoints = () => {
   useInterval(() => {
     const result = algo?.runNextStep(points, edges)
     setPoints(result?.points.map((point) => {
-      return { ...point, highlight: result.highlighPoints.includes(point.id) }
+      return { ...point, highlight: result.highlightPoints.includes(point.id) }
     }))
 
     setEdges(result?.edges.map((edge) => {
       return { ...edge, highlight: result.highlightEdges.includes(edge.id) }
     }))
-  }, algo?.hasNextStep() ? 1500 : null)
+  }, algo?.hasNextStep() ? 200 : null)
 
   return (
     <Container title="Pick Your Points" className="flex-1">
@@ -158,14 +160,19 @@ const PickYourPoints = () => {
         onClick={handlePointGeneration}
       >
         {points.map(({ x, y, highlight }) => {
-          const fill = highlight ? "orange" : "white"
-          const stroke = highlight ? "orange" : "white"
-          return (<circle key={`${x}_${y}`} cx={x} cy={y} r={5} fill={fill} stroke={stroke} />)
+          const fill = highlight ? "orange" : "black"
+          const stroke = highlight ? "orange" : "black"
+          var rect = svgRect.current.getBoundingClientRect();
+          const fixed_y = (rect.bottom) - y - rect.top
+          return (<circle key={`${x}_${y}`} cx={x} cy={fixed_y} r={5} fill={fill} stroke={stroke} />)
         })}
-        {edges.map(({ start, end, highlight }) => {
-          const fill = highlight ? "orange" : "white"
-          const stroke = highlight ? "orange" : "white"
-          return (<line key={`${start.x}_${end.y}`} fill={fill} stroke={stroke} x1={start.x} y1={start.y} x2={end.x} y2={end.y} />)
+        {edges.map(({id, highlight, start, end}) => {
+          const fill = highlight ? "orange" : "black"
+          const stroke = highlight ? "orange" : "black"
+          var rect = svgRect.current.getBoundingClientRect();
+          const fixed_sy = (rect.bottom) - start.y - rect.top
+          const fixed_ey = (rect.bottom) - end.y - rect.top
+          return (<line key={`${start.x}_${end.y}`} fill={fill} stroke={stroke} x1={start.x} y1={fixed_sy} x2={end.x} y2={fixed_ey} />)
         })}
       </svg>
       <div>

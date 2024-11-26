@@ -1,14 +1,13 @@
-import { Matrix } from "mathjs";
-import { matrix } from "mathjs";
+import { Matrix, matrix } from "mathjs";
 import { det } from "mathjs";
+import { Point } from "@/types";
 
-export type Point = [x: number, y: number];
 
 export function orient(p: Point, q: Point, r: Point) : boolean {
     // Return true if p->q->r is a left-hand turn
-    let [px, py] = p;
-    let [qx, qy] = q;
-    let [rx, ry] = r;
+    let {x:px, y:py} = p;
+    let {x:qx, y:qy} = q;
+    let {x:rx, y:ry} = r;
     let M: Matrix = matrix([[1, px, py],[1, qx, qy], [1, rx, ry]]);
     let d: number = det(M);
 
@@ -19,3 +18,8 @@ export function orient(p: Point, q: Point, r: Point) : boolean {
         return true;
     }
 }
+
+let x: Point = {id: 0, highlight: false, x: 0, y: 10}
+let y: Point = {id: 0, highlight: false, x: 10, y: 0}
+let z: Point = {id: 0, highlight: false, x: 10, y: -20}
+console.log(orient(x, y, z))
