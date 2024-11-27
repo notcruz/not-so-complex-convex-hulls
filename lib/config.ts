@@ -14,7 +14,7 @@ export const algorithms: AlgorithmDetails[] = [
   },
   {
     type: "graham",
-    name: "Graham Algorithm",
+    name: "Graham's Scan",
     description: "This is a description for Graham algorithm.",
     complexity: {
       time: "O(n log n)",
@@ -25,7 +25,7 @@ export const algorithms: AlgorithmDetails[] = [
   },
   {
     type: "jarvis",
-    name: "Jarvis Algorithm",
+    name: "Jarvis March",
     description: "This is a description for Jarvis algorithm.",
     complexity: {
       time: "O(n log h)",
@@ -36,7 +36,7 @@ export const algorithms: AlgorithmDetails[] = [
   },
   {
     type: "chans",
-    name: "Chans Algorithm",
+    name: "Chan's Algorithm",
     description: "This is a description for Chans algorithm.",
     complexity: {
       time: "O (n log n)",
