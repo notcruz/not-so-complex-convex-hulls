@@ -1,6 +1,6 @@
 import { Algorithm, AlgorithmStep, Edge, Point } from "@/types";
 
-export class TestAlgorithm implements Algorithm {
+export class TestAlgorithm extends Algorithm {
   counter: number = 0;
 
   // nest step will generate a random point on the board

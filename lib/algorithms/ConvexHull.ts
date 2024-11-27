@@ -1,6 +1,6 @@
 import { Matrix, matrix } from "mathjs";
 import { det } from "mathjs";
-import { Point } from "@/types";
+import { Point, Edge } from "@/types";
 
 
 export function orient(p: Point, q: Point, r: Point) : boolean {
@@ -19,7 +19,12 @@ export function orient(p: Point, q: Point, r: Point) : boolean {
     }
 }
 
-let x: Point = {id: 0, highlight: false, x: 0, y: 10}
-let y: Point = {id: 0, highlight: false, x: 10, y: 0}
-let z: Point = {id: 0, highlight: false, x: 10, y: -20}
-console.log(orient(x, y, z))
+export function generate_edges_from_arr(arr: Point[]): Edge[] {
+    var edges: Edge[] = [];
+
+    for(var i = 1; i < arr.length; i++){
+        let new_edge = {id: i, highlight:false, start: arr[i-1], end: arr[i]};
+        edges.push(new_edge);
+    }
+    return edges;
+}

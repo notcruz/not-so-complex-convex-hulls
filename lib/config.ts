@@ -20,7 +20,24 @@ export const algorithms: AlgorithmDetails[] = [
       time: "O(n log n)",
       reasoning: "",
     },
-    code: "print('graham')",
+    code: 
+    `    def graham_scan(points):
+        stack = []
+
+        # p0 is lowest and leftmost point
+        p0 = (math.inf, math.inf)
+        for p in points:
+                if p[1] < p0[1] or (p[1] == p0[1] and p[0] < p0[0]):
+                        p0 = p
+
+        # Sort by angle to lowest left most point
+        points.sort(key=lambda x:math.atan2((x[1] - p0[1]), (x[0] - p0[0])))
+
+        for point in points:
+                while len(stack) > 1 and clockwise(stack[-2], stack[-1], point) == false:
+                        stack.pop()
+                stack.append(point)
+        return stack`,
     resources: [],
   },
   {

@@ -1,35 +1,12 @@
-import {Algorithm, AlgorithmStep, defaultStep, Edge, Point } from "@/types"
-import { LinkedQueue } from "../queue.ts";
-import {orient} from './ConvexHull.ts';
+import {Algorithm, defaultStep, Point } from "@/types"
+import { orient, generate_edges_from_arr} from './ConvexHull.ts';
 import { atan2 } from 'mathjs';
-import { initHeapProfiler } from "next/dist/build/swc/index";
-import { start } from "repl";
 
-export class GrahamScan implements Algorithm {
-    step_queue: LinkedQueue<AlgorithmStep>;
+export class GrahamScan extends Algorithm {
 
-    constructor(initial_state: AlgorithmStep){
-        this.step_queue = new LinkedQueue<AlgorithmStep>();
-        this.step_queue.enqueue(initial_state);
-        this.graham_scan(initial_state.points);
-    }
-
-    runNextStep(points: Readonly<Point[]>, edges: Readonly<Edge[]>): AlgorithmStep | undefined {
-        return this.step_queue.dequeue()
-    }
-
-    hasNextStep(): boolean {
-        return !this.step_queue.isEmpty()
-    }
-
-    generate_edges_from_arr(arr: Point[]): Edge[] {
-        var edges: Edge[] = [];
-
-        for(var i = 1; i < arr.length; i++){
-            let new_edge = {id: i, highlight:false, start: arr[i-1], end: arr[i]};
-            edges.push(new_edge);
-        }
-        return edges;
+    constructor(points: Point[]){
+        super();
+        this.graham_scan(points);
     }
 
     graham_scan(points: Point[]): Point[] {
@@ -55,9 +32,10 @@ export class GrahamScan implements Algorithm {
         points.unshift(rem)
 
         this.step_queue.enqueue({ ...defaultStep, 
+            highlightLines:"13",
             highlightPoints:[points[0].id], 
             points: points,
-            edges: this.generate_edges_from_arr(stack)})
+            edges: generate_edges_from_arr(stack)})
 
         for (i = 0; i < num_points; i++) {
             let current_point = points[i];
@@ -66,13 +44,13 @@ export class GrahamScan implements Algorithm {
                 this.step_queue.enqueue({ ...defaultStep, 
                                         highlightPoints:[current_point.id, stack[stack.length-2].id, stack[stack.length-1].id], 
                                         points: points,
-                                        edges: this.generate_edges_from_arr(stack)})
+                                        edges: generate_edges_from_arr(stack)})
             }
             else if(stack.length === 1){
                 this.step_queue.enqueue({ ...defaultStep, 
                                         highlightPoints:[current_point.id], 
                                         points: points,
-                                        edges: this.generate_edges_from_arr(stack)})
+                                        edges: generate_edges_from_arr(stack)})
             }
             
             while (stack.length > 1 && orient(stack[stack.length-2], stack[stack.length-1], current_point) == false){
@@ -81,18 +59,18 @@ export class GrahamScan implements Algorithm {
                     this.step_queue.enqueue({ ...defaultStep, 
                                             highlightPoints:[current_point.id, stack[stack.length-2].id, stack[stack.length-1].id], 
                                             points: points,
-                                            edges: this.generate_edges_from_arr(stack)})
+                                            edges: generate_edges_from_arr(stack)})
                 }
                 else if(stack.length = 1){
                     this.step_queue.enqueue({ ...defaultStep, 
                                             highlightPoints:[current_point.id], 
                                             points: points,
-                                            edges: this.generate_edges_from_arr(stack)})
+                                            edges: generate_edges_from_arr(stack)})
                 }
             }
             stack.push(points[i]);
         }
-        let conv_hull = this.generate_edges_from_arr(stack)
+        let conv_hull = generate_edges_from_arr(stack)
         let connecting_edge = {id: -1, highlight:false, start: stack[stack.length -1], end: stack[0]}
         conv_hull.push(connecting_edge);
         this.step_queue.enqueue({...defaultStep, points: points, 

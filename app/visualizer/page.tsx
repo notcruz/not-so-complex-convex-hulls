@@ -5,10 +5,11 @@ import { TestAlgorithm } from "@/lib/algorithms/TestAlgorithm";
 import { GrahamScan } from "@/lib/algorithms/graham";
 import { cn } from "@/lib/utils";
 import { algorithmAtom } from "@/state";
-import { Point, Edge, Algorithm , defaultStep} from "@/types";
+import { Point, Edge, Algorithm} from "@/types";
 import {
   PauseIcon,
   PlayIcon,
+  ResetIcon,
   ResumeIcon,
   TrackNextIcon,
 } from "@radix-ui/react-icons";
@@ -120,6 +121,25 @@ const PickYourPoints = () => {
     play()
   };
 
+  const handleStep = () => {
+    if(!started){
+      handleStart();
+    }
+
+    if (algo?.hasNextStep()){
+      const result = algo?.runNextStep(points, edges);
+      setPoints(result?.points.map((point) => {
+        return { ...point, highlight: result.highlightPoints.includes(point.id) }
+      }))
+
+      setEdges(result?.edges.map((edge) => {
+        return { ...edge, highlight: result.highlightEdges.includes(edge.id) }
+      }))
+    }
+
+    setPaused(true);
+  }
+
   const reset = () => {
     setStarted(false)
     setPaused(true)
@@ -128,13 +148,13 @@ const PickYourPoints = () => {
   }
 
   const play = () => {
-    var testAlgorithm: Algorithm = new TestAlgorithm();
+    var testAlgorithm: Algorithm | undefined = undefined;
     switch (algorithm?.type){
       case "graham":
-        testAlgorithm = new GrahamScan({...defaultStep, points: points});
+        testAlgorithm = new GrahamScan(points);
         break;
       default:
-        break;
+        testAlgorithm = new TestAlgorithm();
     }
     setAlgo(testAlgorithm)
   }
@@ -144,14 +164,16 @@ const PickYourPoints = () => {
   }
 
   useInterval(() => {
-    const result = algo?.runNextStep(points, edges)
-    setPoints(result?.points.map((point) => {
-      return { ...point, highlight: result.highlightPoints.includes(point.id) }
-    }))
+    if (!paused){
+      const result = algo?.runNextStep(points, edges)
+      setPoints(result?.points.map((point) => {
+        return { ...point, highlight: result.highlightPoints.includes(point.id) }
+      }))
 
-    setEdges(result?.edges.map((edge) => {
-      return { ...edge, highlight: result.highlightEdges.includes(edge.id) }
+      setEdges(result?.edges.map((edge) => {
+        return { ...edge, highlight: result.highlightEdges.includes(edge.id) }
     }))
+    }
   }, algo?.hasNextStep() ? 100 : null)
 
   return (
@@ -172,7 +194,7 @@ const PickYourPoints = () => {
           const fixed_y = (rect.bottom) - y - rect.top
           return (<circle key={`${x}_${y}`} cx={x} cy={fixed_y} r={5} fill={fill} stroke={stroke} />)
         })}
-        {edges.map(({id, highlight, start, end}) => {
+        {edges.map(({highlight, start, end}) => {
           const fill = highlight ? "orange" : "black"
           const stroke = highlight ? "orange" : "black"
           var rect = svgRect.current.getBoundingClientRect();
@@ -197,8 +219,11 @@ const PickYourPoints = () => {
             <PlayIcon className="h-4 w-4 fill-current" />
           </Button>
         )}
-        <Button>
+        <Button onClick={handleStep}>
           <TrackNextIcon className="h-4 w-4 fill-current" />
+        </Button>
+        <Button onClick={reset}>
+          <ResetIcon className="h-4 w-4 fill-current" />
         </Button>
       </div>
     </Container>

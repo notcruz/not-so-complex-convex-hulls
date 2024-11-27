@@ -1,3 +1,5 @@
+import { LinkedQueue } from "@/lib/queue";
+
 export type AlgorithmDetails = {
   type: string;
   name: string;
@@ -11,10 +13,15 @@ export type AlgorithmDetails = {
 };
 
 
-export interface Algorithm {
-  runNextStep(points: Readonly<Point[]>, edges: Readonly<Edge[]>): AlgorithmStep | undefined;
+export abstract class Algorithm {
+  step_queue: LinkedQueue<AlgorithmStep> = new LinkedQueue();
+  runNextStep(points: Readonly<Point[]>, edges: Readonly<Edge[]>): AlgorithmStep | undefined {
+    return this.step_queue.dequeue();
+  }
 
-  hasNextStep(): boolean;
+  hasNextStep(): boolean {
+    return !this.step_queue.isEmpty();
+  }
 }
 
 
