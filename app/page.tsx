@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 const rate = 0.75;
 
 export default function Home() {
-  const [type, setType] = useState();
+  const [type, setType] = useState<string>();
   const { time, start } = useStopwatch();
 
   useEffect(() => start(), [start]);
@@ -26,10 +26,10 @@ export default function Home() {
   return (
     <div className={"flex flex-col gap-y-9 justify-center mx-64 mt-16"}>
       <div className="flex flex-col gap-y-3 text-center">
-        <h1 className="font-bold text-2xl">Not So Complex Convex Hulls</h1>
+        <h1 className="font-bold text-2xl">Not-So-Complex Convex Hulls</h1>
         <p>
           An interactive learning tool that walks users through the Naive
-          Algorithm, Jarvis March, and Chan&#39;s Algorithm for generating
+          Algorithm, Jarvis March, Chan&#39;s Algorithm, and Graham&#39;s Scan for generating
           convex hulls. It provides step-by-step visualizations on different
           point sets, helping users understand how each algorithm makes
           decisions and approaches the problem of convex hull construction in
@@ -73,7 +73,7 @@ export default function Home() {
             >
               {!type ? (
                 <div className="text-xl">
-                  Select '<span className="font-bold">View Details</span>' on a
+                  Select '<span className="font-bold">View Details</span>' on an
                   Algorithm
                 </div>
               ) : (

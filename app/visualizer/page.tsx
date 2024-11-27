@@ -2,11 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { TestAlgorithm } from "@/lib/algorithms/TestAlgorithm";
-import { defaultStep } from "@/types";
 import { GrahamScan } from "@/lib/algorithms/graham";
 import { cn } from "@/lib/utils";
 import { algorithmAtom } from "@/state";
-import { Point, Edge, Algorithm } from "@/types";
+import { Point, Edge, Algorithm , defaultStep} from "@/types";
 import {
   PauseIcon,
   PlayIcon,
@@ -129,7 +128,14 @@ const PickYourPoints = () => {
   }
 
   const play = () => {
-    const testAlgorithm = new GrahamScan({...defaultStep, points: points});
+    var testAlgorithm: Algorithm = new TestAlgorithm();
+    switch (algorithm?.type){
+      case "graham":
+        testAlgorithm = new GrahamScan({...defaultStep, points: points});
+        break;
+      default:
+        break;
+    }
     setAlgo(testAlgorithm)
   }
 
@@ -146,7 +152,7 @@ const PickYourPoints = () => {
     setEdges(result?.edges.map((edge) => {
       return { ...edge, highlight: result.highlightEdges.includes(edge.id) }
     }))
-  }, algo?.hasNextStep() ? 200 : null)
+  }, algo?.hasNextStep() ? 100 : null)
 
   return (
     <Container title="Pick Your Points" className="flex-1">

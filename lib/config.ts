@@ -1,6 +1,6 @@
-import { Algorithm } from "@/types";
+import { AlgorithmDetails } from "@/types";
 
-export const algorithms: Algorithm[] = [
+export const algorithms: AlgorithmDetails[] = [
   {
     type: "naive",
     name: "Naive Algorithm",
