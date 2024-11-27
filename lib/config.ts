@@ -13,6 +13,17 @@ export const algorithms: AlgorithmDetails[] = [
     resources: [],
   },
   {
+    type: "graham",
+    name: "Graham Algorithm",
+    description: "This is a description for Graham algorithm.",
+    complexity: {
+      time: "O(n log n)",
+      reasoning: "",
+    },
+    code: "print('graham')",
+    resources: [],
+  },
+  {
     type: "jarvis",
     name: "Jarvis Algorithm",
     description: "This is a description for Jarvis algorithm.",
@@ -32,17 +43,6 @@ export const algorithms: AlgorithmDetails[] = [
       reasoning: "",
     },
     code: "print('chans')",
-    resources: [],
-  },
-  {
-    type: "graham",
-    name: "Graham Algorithm",
-    description: "This is a description for Graham algorithm.",
-    complexity: {
-      time: "O(n log n)",
-      reasoning: "",
-    },
-    code: "print('graham')",
     resources: [],
   },
 ];
