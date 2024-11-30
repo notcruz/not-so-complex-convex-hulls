@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { TestAlgorithm } from "@/lib/algorithms/TestAlgorithm";
 import { GrahamScan } from "@/lib/algorithms/graham";
+import { NaiveAlgorithm } from "@/lib/algorithms/naive";
 import { cn } from "@/lib/utils";
 import { algorithmAtom } from "@/state";
 import { Point, Edge, Algorithm} from "@/types";
@@ -153,8 +154,12 @@ const PickYourPoints = () => {
       case "graham":
         testAlgorithm = new GrahamScan(points);
         break;
+      case "naive":
+        testAlgorithm = new NaiveAlgorithm(points);
+        break;
       default:
         testAlgorithm = new TestAlgorithm();
+        break;
     }
     setAlgo(testAlgorithm)
   }
