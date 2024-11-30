@@ -1,16 +1,6 @@
-import { atan2 } from 'mathjs';
 import { Algorithm, Point, defaultStep } from '@/types';
-import { generate_edges_from_arr } from './ConvexHull';
+import { generate_edges_from_arr, slope } from './ConvexHull';
 
-function slope(p1: Point, p2: Point): number {
-    // Return the slope of p1->p2
-    if (p1.x <= p2.x){
-        return atan2((p2.y - p1.y),(p2.x - p1.x));
-    }
-    else{
-        return slope(p2, p1);
-    }
-}
 
 export class NaiveAlgorithm extends Algorithm {
     
@@ -21,6 +11,8 @@ export class NaiveAlgorithm extends Algorithm {
 
     naive(points: Point[]): Point[] {
         // Perform Brute Force Convex Hull algorithm on a list of points.
+        points.sort((a, b) => a.x - b.x)
+
         var right_most = points[0];
         var left_most = points[0];
 
@@ -48,9 +40,17 @@ export class NaiveAlgorithm extends Algorithm {
             let best_candidate: Point = left_most; // initial value
             for (i = 0; i < num_points; i++){
                 let candidate = points[i];
+
                 if ((convex_hull.includes(candidate)) || candidate.x >= current_point.x){
                     continue;
                 }
+
+                this.step_queue.enqueue({...defaultStep, 
+                                        highlightPoints:[left_most.id, right_most.id, current_point.id, candidate.id],
+                                        points: points,
+                                        edges: generate_edges_from_arr(convex_hull)
+                })
+
                 let test_slope = slope(candidate, current_point);
                 if (test_slope < min_slope){
                     best_candidate = candidate;
@@ -67,10 +67,18 @@ export class NaiveAlgorithm extends Algorithm {
             let best_candidate: Point = right_most; // initial value
             for (i = 0; i < num_points; i++){
                 let candidate = points[i];
+
                 if ((convex_hull.includes(candidate)) && candidate != right_most 
                     || candidate.x <= current_point.x){
                     continue;
                 }
+
+                this.step_queue.enqueue({...defaultStep, 
+                                        highlightPoints:[left_most.id, right_most.id, current_point.id, candidate.id],
+                                        points: points,
+                                        edges: generate_edges_from_arr(convex_hull)
+                })
+
                 let test_slope = slope(candidate, current_point);
                 if (test_slope < min_slope){
                     best_candidate = candidate;
@@ -83,7 +91,7 @@ export class NaiveAlgorithm extends Algorithm {
             convex_hull.push(best_candidate)
             current_point = best_candidate;
         }
-        console.log(convex_hull);
+
         let conv_hull_edges = generate_edges_from_arr(convex_hull);
         let connecting_edge = {id: -1, highlight:false, start: convex_hull[convex_hull.length -1], end: convex_hull[0]}
         conv_hull_edges.push(connecting_edge);

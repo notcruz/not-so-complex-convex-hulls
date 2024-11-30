@@ -1,6 +1,7 @@
 import { Matrix, matrix } from "mathjs";
 import { det } from "mathjs";
 import { Point, Edge } from "@/types";
+import { atan2 } from 'mathjs';
 
 
 export function orient(p: Point, q: Point, r: Point) : boolean {
@@ -27,4 +28,14 @@ export function generate_edges_from_arr(arr: Point[]): Edge[] {
         edges.push(new_edge);
     }
     return edges;
+}
+
+export function slope(p1: Point, p2: Point): number {
+    // Return the slope of p1->p2
+    if (p1.x <= p2.x){
+        return atan2((p2.y - p1.y),(p2.x - p1.x));
+    }
+    else{
+        return slope(p2, p1);
+    }
 }
