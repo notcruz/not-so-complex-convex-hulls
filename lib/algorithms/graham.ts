@@ -1,5 +1,5 @@
 import {Algorithm, defaultStep, Point } from "@/types"
-import { orient, generate_edges_from_arr} from './ConvexHull.ts';
+import { orient, generate_edges_from_arr, mergeSortByAngle} from './ConvexHull.ts';
 import { atan2 } from 'mathjs';
 
 export class GrahamScan extends Algorithm {
@@ -26,10 +26,23 @@ export class GrahamScan extends Algorithm {
 
         // Sort the points by their angle to the lowest_leftmost point
         let {x, y} = lowest_leftmost;
-        points.sort((a, b) => atan2(a.y - y, a.x - x) - atan2(b.y - y, b.x - x));
+        //points.sort((a, b) => atan2(a.y - y, a.x - x) - atan2(b.y - y, b.x - x));
+        points = mergeSortByAngle(points, lowest_leftmost, points, this.step_queue);
         let rem_i = points.indexOf(lowest_leftmost);
         let [rem] = points.splice(rem_i, 1);
         points.unshift(rem)
+        num_points = points.length
+
+        // Showcase sort
+        for (i = 0; i < num_points; i++){
+            this.step_queue.enqueue({
+                ...defaultStep,
+                highlightPoints:[points[i].id],
+                points:points,
+                highlightEdges:[-1],
+                edges: [{id:-1, highlight: true, start:lowest_leftmost, end: points[i]}]
+            })
+        }
 
         this.step_queue.enqueue({ ...defaultStep, 
             highlightLines:"13",
