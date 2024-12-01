@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { TestAlgorithm } from "@/lib/algorithms/TestAlgorithm";
 import { GrahamScan } from "@/lib/algorithms/graham";
+import { JarvisMarch } from "@/lib/algorithms/jarvis";
 import { NaiveAlgorithm } from "@/lib/algorithms/naive";
 import { cn } from "@/lib/utils";
 import { algorithmAtom } from "@/state";
@@ -87,7 +88,10 @@ const PickYourPoints = () => {
   // reset board whenever the algorithm is updated
   useEffect(() => {
     if (algorithm) {
-      reset()
+      //reset()
+      setEdges([])
+      setStarted(false)
+      setPaused(true)
     }
   }, [algorithm])
 
@@ -156,6 +160,9 @@ const PickYourPoints = () => {
         break;
       case "naive":
         testAlgorithm = new NaiveAlgorithm(points);
+        break;
+      case "jarvis":
+        testAlgorithm = new JarvisMarch(points);
         break;
       default:
         testAlgorithm = new TestAlgorithm();
