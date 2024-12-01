@@ -35,7 +35,7 @@ export class NaiveAlgorithm extends Algorithm {
                         points:points,
                         edges: tempEdges
                     });
-                    if(orient(p, r, q)){
+                    if(orient(p, r, q) >= 0){
                         valid = false;
                     }
                 }

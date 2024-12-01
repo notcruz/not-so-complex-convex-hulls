@@ -5,7 +5,7 @@ import { atan2 } from 'mathjs';
 import { LinkedQueue } from "../queue";
 
 
-export function orient(p: Point, q: Point, r: Point) : boolean {
+export function orient(p: Point, q: Point, r: Point) : number {
     // Return true if p->q->r is a left-hand turn
     let {x:px, y:py} = p;
     let {x:qx, y:qy} = q;
@@ -13,12 +13,14 @@ export function orient(p: Point, q: Point, r: Point) : boolean {
     let M: Matrix = matrix([[1, px, py],[1, qx, qy], [1, rx, ry]]);
     let d: number = det(M);
 
-    if (d < 0) {
-        return false;
-    }
-    else{
-        return true;
-    }
+    return d;
+
+    // if (d < 0) {
+    //     return false;
+    // }
+    // else{
+    //     return true;
+    // }
 }
 
 export function generate_edges_from_arr(arr: Point[]): Edge[] {

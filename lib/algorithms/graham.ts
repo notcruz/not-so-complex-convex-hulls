@@ -1,6 +1,5 @@
 import {Algorithm, defaultStep, Point } from "@/types"
 import { orient, generate_edges_from_arr, mergeSortByAngle} from './ConvexHull.ts';
-import { atan2 } from 'mathjs';
 
 export class GrahamScan extends Algorithm {
 
@@ -9,7 +8,7 @@ export class GrahamScan extends Algorithm {
         this.graham_scan(points);
     }
 
-    graham_scan(points: Point[]): Point[] {
+    graham_scan(points: Point[]): void {
         // Perform Graham's Scan Convex Hull algorithm on a list of points.
         var stack: Point[] = [];
 
@@ -26,7 +25,6 @@ export class GrahamScan extends Algorithm {
 
         // Sort the points by their angle to the lowest_leftmost point
         let {x, y} = lowest_leftmost;
-        //points.sort((a, b) => atan2(a.y - y, a.x - x) - atan2(b.y - y, b.x - x));
         points = mergeSortByAngle(points, lowest_leftmost, points, this.step_queue);
         let rem_i = points.indexOf(lowest_leftmost);
         let [rem] = points.splice(rem_i, 1);
@@ -66,7 +64,7 @@ export class GrahamScan extends Algorithm {
                                         edges: generate_edges_from_arr(stack)})
             }
             
-            while (stack.length > 1 && orient(stack[stack.length-2], stack[stack.length-1], current_point) == false){
+            while (stack.length > 1 && orient(stack[stack.length-2], stack[stack.length-1], current_point) < 0){
                 stack.pop();
                 if(stack.length > 1){
                     this.step_queue.enqueue({ ...defaultStep, 
@@ -88,6 +86,5 @@ export class GrahamScan extends Algorithm {
         conv_hull.push(connecting_edge);
         this.step_queue.enqueue({...defaultStep, points: points, 
             edges: conv_hull});
-        return stack;
     }
 }
