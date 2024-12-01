@@ -1,5 +1,5 @@
-import { Algorithm, Point, defaultStep } from '@/types';
-import { generate_edges_from_arr, slope } from './ConvexHull';
+import { Algorithm, Point, Edge, defaultStep } from '@/types';
+import { orient } from './ConvexHull';
 
 
 export class NaiveAlgorithm extends Algorithm {
@@ -9,94 +9,55 @@ export class NaiveAlgorithm extends Algorithm {
         this.naive(points);
     }
 
-    naive(points: Point[]): Point[] {
+    naive(points: Point[]): void {
         // Perform Brute Force Convex Hull algorithm on a list of points.
         points.sort((a, b) => a.x - b.x)
 
-        var right_most = points[0];
-        var left_most = points[0];
+        var ch_edges: Edge[] = [];
+        var all_ordered_pairs: [Point, Point][] = cartesianProduct<Point>(points);
 
-        var num_points = points.length;
+        for(var i = 0; i < all_ordered_pairs.length; i++){
+            let current_pair = all_ordered_pairs[i];
+            let p: Point = current_pair[0];
+            let q: Point = current_pair[1];
+            let valid = true;
 
-        // Find the leftmost and rightmost points of the set
-        for (var i = 0; i < num_points; i++) {
-            let {x:curr_x, y:curr_y} = points[i];
-            if ((curr_x == left_most.x && curr_y < left_most.y)
-                || curr_x < left_most.x){
-                left_most = points[i];
+            for(var j = 0; j < points.length; j++){
+                let r: Point = points[j];
+
+                if(r != p && r != q){
+                    let tempEdges = [...ch_edges];
+                    tempEdges.push({id:-1, start: p, end: q})
+                    this.step_queue.enqueue({
+                        ...defaultStep,
+                        highlightPoints:[p.id, q.id, r.id],
+                        highlightEdges:[-1],
+                        points:points,
+                        edges: tempEdges
+                    });
+                    if(orient(p, r, q)){
+                        valid = false;
+                    }
+                }
             }
-            if (curr_x > right_most.x ||
-                (curr_x == right_most.x && curr_y > right_most.y)){
-                right_most = points[i];
+            if (valid){
+                ch_edges.push({id:ch_edges.length + 1, start: p, end:q})
             }
+
         }
-
-        var convex_hull = [right_most];
-
-        // Upper hull
-        var current_point = convex_hull[convex_hull.length-1];
-        while (current_point != left_most){
-            let min_slope = slope(current_point, left_most)
-            let best_candidate: Point = left_most; // initial value
-            for (i = 0; i < num_points; i++){
-                let candidate = points[i];
-
-                if ((convex_hull.includes(candidate)) || candidate.x >= current_point.x){
-                    continue;
-                }
-
-                this.step_queue.enqueue({...defaultStep, 
-                                        highlightPoints:[left_most.id, right_most.id, current_point.id, candidate.id],
-                                        points: points,
-                                        edges: generate_edges_from_arr(convex_hull)
-                })
-
-                let test_slope = slope(candidate, current_point);
-                if (test_slope < min_slope){
-                    best_candidate = candidate;
-                    min_slope = test_slope;
-                }
-            }
-            convex_hull.push(best_candidate)
-            current_point = best_candidate;
-        }
-
-        // Lower hull
-        while (true){
-            let min_slope = slope(current_point, right_most)
-            let best_candidate: Point = right_most; // initial value
-            for (i = 0; i < num_points; i++){
-                let candidate = points[i];
-
-                if ((convex_hull.includes(candidate)) && candidate != right_most 
-                    || candidate.x <= current_point.x){
-                    continue;
-                }
-
-                this.step_queue.enqueue({...defaultStep, 
-                                        highlightPoints:[left_most.id, right_most.id, current_point.id, candidate.id],
-                                        points: points,
-                                        edges: generate_edges_from_arr(convex_hull)
-                })
-
-                let test_slope = slope(candidate, current_point);
-                if (test_slope < min_slope){
-                    best_candidate = candidate;
-                    min_slope = test_slope;
-                }
-            }
-            if (best_candidate == right_most){
-                break;
-            }
-            convex_hull.push(best_candidate)
-            current_point = best_candidate;
-        }
-
-        let conv_hull_edges = generate_edges_from_arr(convex_hull);
-        let connecting_edge = {id: -1, highlight:false, start: convex_hull[convex_hull.length -1], end: convex_hull[0]}
-        conv_hull_edges.push(connecting_edge);
-        this.step_queue.enqueue({...defaultStep, points:points, edges:conv_hull_edges})
-        return convex_hull;
+        this.step_queue.enqueue({...defaultStep, points: points, 
+            edges: ch_edges});
     }
 }
 
+function cartesianProduct<T>(array: T[]): [T, T][] {
+    const result: [T, T][] = [];
+    
+    for (const a of array) {
+        for (const b of array) {
+            result.push([a, b]);
+        }
+    }
+    
+    return result;
+}
