@@ -10,7 +10,6 @@ export class JarvisMarch extends Algorithm {
     }
 
     jarvis_march(points: Point[]): Point[] {
-        // Perform Brute Force Convex Hull algorithm on a list of points.
         points.sort((a, b) => a.x - b.x)
 
         var right_most = points[0];

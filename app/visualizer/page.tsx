@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { TestAlgorithm } from "@/lib/algorithms/TestAlgorithm";
+import { ChansAlgorithm } from "@/lib/algorithms/chan";
 import { GrahamScan } from "@/lib/algorithms/graham";
 import { JarvisMarch } from "@/lib/algorithms/jarvis";
 import { NaiveAlgorithm } from "@/lib/algorithms/naive";
@@ -164,6 +165,9 @@ const PickYourPoints = () => {
       case "jarvis":
         testAlgorithm = new JarvisMarch(points);
         break;
+      case "chans":
+        testAlgorithm = new ChansAlgorithm(points);
+        break;
       default:
         testAlgorithm = new TestAlgorithm();
         break;
@@ -186,7 +190,7 @@ const PickYourPoints = () => {
         return { ...edge, highlight: result.highlightEdges.includes(edge.id) }
     }))
     }
-  }, algo?.hasNextStep() ? 100 : null)
+  }, algo?.hasNextStep() ? 10 : null)
 
   return (
     <Container title="Pick Your Points" className="flex-1">

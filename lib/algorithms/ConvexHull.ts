@@ -33,6 +33,14 @@ export function generate_edges_from_arr(arr: Point[]): Edge[] {
     return edges;
 }
 
+export function generate_edges_from_arr_closed(arr: Point[]): Edge[] {
+    var edges: Edge[] = generate_edges_from_arr(arr);
+
+    let connecting_edge: Edge = {id:arr.length + 1, start: arr[arr.length - 1], end: arr[0]};
+    edges.push(connecting_edge);
+    return edges;
+}
+
 export function slope(p1: Point, p2: Point): number {
     // Return the slope of p1->p2
     if (p1.x <= p2.x){
@@ -43,7 +51,7 @@ export function slope(p1: Point, p2: Point): number {
     }
 }
 
-export function mergeSortByAngle(full_points: Point[], anchor: Point, points: Point[], step_queue: LinkedQueue<AlgorithmStep>): Point[] {
+export function mergeSortByAngle(full_points: Point[], full_edges: Edge[], anchor: Point, points: Point[], step_queue: LinkedQueue<AlgorithmStep>): Point[] {
     if (points.length <= 1) {
         return points;
     }
@@ -54,14 +62,14 @@ export function mergeSortByAngle(full_points: Point[], anchor: Point, points: Po
     const right = points.slice(mid);
 
     // Recursively sort both halves
-    const sortedLeft = mergeSortByAngle(full_points, anchor, left, step_queue);
-    const sortedRight = mergeSortByAngle(full_points, anchor, right, step_queue);
+    const sortedLeft = mergeSortByAngle(full_points, full_edges, anchor, left, step_queue);
+    const sortedRight = mergeSortByAngle(full_points, full_edges, anchor, right, step_queue);
 
     // Merge the sorted halves
-    return merge(full_points, anchor, sortedLeft, sortedRight, step_queue);
+    return merge(full_points, full_edges, anchor, sortedLeft, sortedRight, step_queue);
 }
 
-function merge(points: Point[], anchor: Point, left: Point[], right: Point[], step_queue: LinkedQueue<AlgorithmStep>): Point[] {
+function merge(points: Point[], edges: Edge[], anchor: Point, left: Point[], right: Point[], step_queue: LinkedQueue<AlgorithmStep>): Point[] {
     const result: Point[] = [];
     let i = 0,
         j = 0;
@@ -77,7 +85,7 @@ function merge(points: Point[], anchor: Point, left: Point[], right: Point[], st
                 points:points,
                 highlightEdges:[-1],
                 edges: [{id:-1, highlight: true, start:anchor, end: left[i]},
-                        {id:-2, highlight: true, start:anchor, end: right[j]}]
+                        {id:-2, highlight: true, start:anchor, end: right[j]}, ...edges]
             })
 
         if (angleLeft <= angleRight) {
@@ -87,7 +95,7 @@ function merge(points: Point[], anchor: Point, left: Point[], right: Point[], st
                 points:points,
                 highlightEdges:[-1],
                 edges: [{id:-1, highlight: true, start:anchor, end: left[i]},
-                        {id:-2, highlight: true, start:anchor, end: right[j]}]
+                        {id:-2, highlight: true, start:anchor, end: right[j]}, ...edges]
             })
             result.push(left[i]);
             i++;
@@ -98,7 +106,7 @@ function merge(points: Point[], anchor: Point, left: Point[], right: Point[], st
                 points:points,
                 highlightEdges:[-2],
                 edges: [{id:-1, highlight: true, start:anchor, end: left[i]},
-                        {id:-2, highlight: true, start:anchor, end: right[j]}]
+                        {id:-2, highlight: true, start:anchor, end: right[j]}, ...edges]
             })
             result.push(right[j]);
             j++;
@@ -112,7 +120,7 @@ function merge(points: Point[], anchor: Point, left: Point[], right: Point[], st
                 highlightPoints:[left[i].id],
                 points:points,
                 highlightEdges:[-1],
-                edges: [{id:-1, highlight: true, start:anchor, end: left[i]}]
+                edges: [{id:-1, highlight: true, start:anchor, end: left[i]}, ...edges]
             })
         result.push(left[i]);
         i++;
@@ -124,7 +132,7 @@ function merge(points: Point[], anchor: Point, left: Point[], right: Point[], st
                 highlightPoints:[right[j].id],
                 points:points,
                 highlightEdges:[-1],
-                edges: [{id:-1, highlight: true, start:anchor, end: right[j]}]
+                edges: [{id:-1, highlight: true, start:anchor, end: right[j]}, ...edges]
             })
         result.push(right[j]);
         j++;

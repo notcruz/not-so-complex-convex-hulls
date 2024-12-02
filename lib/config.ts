@@ -9,7 +9,7 @@ export const algorithms: AlgorithmDetails[] = [
       time: "O(n^3)",
       reasoning: "",
     },
-    code: "print('naive algorithm')",
+    code: `def_naive`,
     resources: [],
   },
   {
