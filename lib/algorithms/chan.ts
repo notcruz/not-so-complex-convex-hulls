@@ -1,9 +1,11 @@
 import {Algorithm, defaultStep, Point, Edge } from "@/types"
-import { orient, generate_edges_from_arr, mergeSortByAngle, slope, generate_edges_from_arr_closed} from './ConvexHull.ts';
+import { orient, generate_edges_from_arr, mergeSortByAngle, slope, generate_edges_from_arr_closed, EdgeCounter} from './ConvexHull.ts';
 
 export class ChansAlgorithm extends Algorithm {
+    edge_counter: EdgeCounter;
     constructor(points: Point[]){
         super();
+        this.edge_counter = new EdgeCounter(points);
         this.chans_algorithm(points);
     }
 
@@ -17,7 +19,7 @@ export class ChansAlgorithm extends Algorithm {
             for (let i = 0; i < n; i += m){
                 let next_subset = this.graham_helper(points, mini_hull_edges, points.slice(i, i + m));
                 subsets.push(next_subset);
-                let current_edges = generate_edges_from_arr_closed(next_subset);
+                let current_edges = generate_edges_from_arr_closed(next_subset, this.edge_counter);
                 mini_hull_edges = [...mini_hull_edges, ...current_edges];
                 this.step_queue.enqueue({...defaultStep, points: points, edges:mini_hull_edges});
             }
@@ -45,8 +47,7 @@ export class ChansAlgorithm extends Algorithm {
         }
 
         // Sort the points by their angle to the lowest_leftmost point
-        let {x, y} = lowest_leftmost;
-        subset_points = mergeSortByAngle(all_points, all_edges, lowest_leftmost, subset_points, this.step_queue);
+        subset_points = mergeSortByAngle(all_points, all_edges, lowest_leftmost, subset_points, this.step_queue, this.edge_counter);
         let rem_i = subset_points.indexOf(lowest_leftmost);
         let [rem] = subset_points.splice(rem_i, 1);
         subset_points.unshift(rem)
@@ -54,12 +55,13 @@ export class ChansAlgorithm extends Algorithm {
 
         // Showcase sort
         for (i = 0; i < num_points; i++){
+            let next_id = this.edge_counter.nextNumber() 
             this.step_queue.enqueue({
                 ...defaultStep,
                 highlightPoints:[subset_points[i].id],
                 points:all_points,
-                highlightEdges:[-1],
-                edges: [{id:-1, highlight: true, start:lowest_leftmost, end: subset_points[i]}, ...all_edges]
+                highlightEdges:[next_id],
+                edges: [{id:next_id, highlight: true, start:lowest_leftmost, end: subset_points[i]}, ...all_edges]
             })
         }
 
@@ -189,11 +191,12 @@ export class ChansAlgorithm extends Algorithm {
                 }
 
                 let tempEdges: Edge[] = generate_edges_from_arr(convex_hull);
-                tempEdges.push({id:-1, highlight: true, start:current_point, end: candidate});
+                let tempID = this.edge_counter.nextNumber();
+                tempEdges.push({id:tempID, highlight: true, start:current_point, end: candidate});
 
                 this.step_queue.enqueue({...defaultStep, 
-                                        highlightEdges:[-1],
-                                        highlightPoints:[left_most.id, right_most.id, current_point.id, candidate.id, -1],
+                                        highlightEdges:[tempID],
+                                        highlightPoints:[current_point.id, candidate.id],
                                         points: all_points,
                                         edges: [...tempEdges, ...all_edges]
                                         })
@@ -225,12 +228,13 @@ export class ChansAlgorithm extends Algorithm {
                 }
 
                 let tempEdges: Edge[] = generate_edges_from_arr(convex_hull);
-                tempEdges.push({id:-1, highlight: true, start:current_point, end: candidate});
+                let tempID = this.edge_counter.nextNumber();
+                tempEdges.push({id:tempID, highlight: true, start:current_point, end: candidate});
 
 
                 this.step_queue.enqueue({...defaultStep, 
-                                        highlightPoints:[left_most.id, right_most.id, current_point.id, candidate.id, -1],
-                                        highlightEdges:[-1],
+                                        highlightPoints:[current_point.id, candidate.id],
+                                        highlightEdges:[tempID],
                                         points: all_points,
                                         edges: [...tempEdges, ...all_edges]
                                         })
@@ -357,18 +361,4 @@ function findTangents(mini_hull: Point[], Q: Point): {lower: Point; upper: Point
         return { lower, upper };
     }
 
-let hull: Point[] = [
-    {id:1, x:3, y:2},
-    {id:2, x:5, y:3},
-    {id:3, x:6, y:5},
-    {id:4, x:3, y:7},
-    {id:5, x:2, y:4}
-];
-let A: Point = {id:6, x:10, y:4};
-let B: Point = {id:7, x:4, y:10};
-let C: Point = {id:8, x:0, y:4};
-let D: Point = {id:9, x:3.5, y:0};
-console.log("A",findTangents(hull, A));
-console.log("B",findTangents(hull, B));
-console.log("C",findTangents(hull, C));
-console.log("D",findTangents(hull, D));
+

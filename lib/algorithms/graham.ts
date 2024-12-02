@@ -24,7 +24,6 @@ export class GrahamScan extends Algorithm {
         }
 
         // Sort the points by their angle to the lowest_leftmost point
-        let {x, y} = lowest_leftmost;
         points = mergeSortByAngle(points, [], lowest_leftmost, points, this.step_queue);
         let rem_i = points.indexOf(lowest_leftmost);
         let [rem] = points.splice(rem_i, 1);

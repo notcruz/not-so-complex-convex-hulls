@@ -210,13 +210,13 @@ const PickYourPoints = () => {
           const fixed_y = (rect.bottom) - y - rect.top
           return (<circle key={`${x}_${y}`} cx={x} cy={fixed_y} r={5} fill={fill} stroke={stroke} />)
         })}
-        {edges.map(({highlight, start, end}) => {
+        {edges.map(({id, highlight, start, end}) => {
           const fill = highlight ? "orange" : "black"
           const stroke = highlight ? "orange" : "black"
           var rect = svgRect.current.getBoundingClientRect();
           const fixed_sy = (rect.bottom) - start.y - rect.top
           const fixed_ey = (rect.bottom) - end.y - rect.top
-          return (<line key={`${start.x}_${end.y}`} fill={fill} stroke={stroke} x1={start.x} y1={fixed_sy} x2={end.x} y2={fixed_ey} />)
+          return (<line key={`${start.x}_${end.y}_${id}`} fill={fill} stroke={stroke} x1={start.x} y1={fixed_sy} x2={end.x} y2={fixed_ey} />)
         })}
       </svg>
       <div>

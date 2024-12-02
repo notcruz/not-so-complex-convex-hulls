@@ -4,6 +4,17 @@ import { Point, Edge, AlgorithmStep, defaultStep } from "@/types";
 import { atan2 } from 'mathjs';
 import { LinkedQueue } from "../queue";
 
+export class EdgeCounter{
+    static count = 0;
+    constructor(points: Point[]){
+        EdgeCounter.count = points.length;
+    }
+    nextNumber(){
+        EdgeCounter.count += 1;
+        return EdgeCounter.count;
+    }
+}
+
 
 export function orient(p: Point, q: Point, r: Point) : number {
     // Return true if p->q->r is a left-hand turn
@@ -14,29 +25,23 @@ export function orient(p: Point, q: Point, r: Point) : number {
     let d: number = det(M);
 
     return d;
-
-    // if (d < 0) {
-    //     return false;
-    // }
-    // else{
-    //     return true;
-    // }
 }
 
-export function generate_edges_from_arr(arr: Point[]): Edge[] {
+export function generate_edges_from_arr(arr: Point[], edge_counter?: EdgeCounter): Edge[] {
     var edges: Edge[] = [];
 
     for(var i = 1; i < arr.length; i++){
-        let new_edge = {id: i, highlight:false, start: arr[i-1], end: arr[i]};
+        let next_id = edge_counter ? edge_counter.nextNumber() : i
+        let new_edge = {id: next_id, highlight:false, start: arr[i-1], end: arr[i]};
         edges.push(new_edge);
     }
     return edges;
 }
 
-export function generate_edges_from_arr_closed(arr: Point[]): Edge[] {
+export function generate_edges_from_arr_closed(arr: Point[], edge_counter?: EdgeCounter): Edge[] {
     var edges: Edge[] = generate_edges_from_arr(arr);
 
-    let connecting_edge: Edge = {id:arr.length + 1, start: arr[arr.length - 1], end: arr[0]};
+    let connecting_edge: Edge = {id:edge_counter? edge_counter.nextNumber() : arr.length + 1, start: arr[arr.length - 1], end: arr[0]};
     edges.push(connecting_edge);
     return edges;
 }
@@ -51,7 +56,9 @@ export function slope(p1: Point, p2: Point): number {
     }
 }
 
-export function mergeSortByAngle(full_points: Point[], full_edges: Edge[], anchor: Point, points: Point[], step_queue: LinkedQueue<AlgorithmStep>): Point[] {
+export function mergeSortByAngle(full_points: Point[], full_edges: Edge[], anchor: Point, points: Point[], step_queue: LinkedQueue<AlgorithmStep>,
+    edge_counter?: EdgeCounter
+): Point[] {
     if (points.length <= 1) {
         return points;
     }
@@ -62,14 +69,16 @@ export function mergeSortByAngle(full_points: Point[], full_edges: Edge[], ancho
     const right = points.slice(mid);
 
     // Recursively sort both halves
-    const sortedLeft = mergeSortByAngle(full_points, full_edges, anchor, left, step_queue);
-    const sortedRight = mergeSortByAngle(full_points, full_edges, anchor, right, step_queue);
+    const sortedLeft = mergeSortByAngle(full_points, full_edges, anchor, left, step_queue, edge_counter);
+    const sortedRight = mergeSortByAngle(full_points, full_edges, anchor, right, step_queue, edge_counter);
 
     // Merge the sorted halves
-    return merge(full_points, full_edges, anchor, sortedLeft, sortedRight, step_queue);
+    return merge(full_points, full_edges, anchor, sortedLeft, sortedRight, step_queue, edge_counter);
 }
 
-function merge(points: Point[], edges: Edge[], anchor: Point, left: Point[], right: Point[], step_queue: LinkedQueue<AlgorithmStep>): Point[] {
+function merge(points: Point[], edges: Edge[], anchor: Point, left: Point[], right: Point[], step_queue: LinkedQueue<AlgorithmStep>,
+    edge_counter?: EdgeCounter
+): Point[] {
     const result: Point[] = [];
     let i = 0,
         j = 0;
@@ -78,35 +87,39 @@ function merge(points: Point[], edges: Edge[], anchor: Point, left: Point[], rig
     while (i < left.length && j < right.length) {
         const angleLeft = calculateAngle(anchor, left[i]);
         const angleRight = calculateAngle(anchor, right[j]);
-
+        
+        let next_id = edge_counter ? edge_counter.nextNumber() : -1
         step_queue.enqueue({
                 ...defaultStep,
                 highlightPoints:[left[i].id, right[j].id],
                 points:points,
-                highlightEdges:[-1],
-                edges: [{id:-1, highlight: true, start:anchor, end: left[i]},
-                        {id:-2, highlight: true, start:anchor, end: right[j]}, ...edges]
+                highlightEdges:[next_id],
+                edges: [{id:next_id, highlight: true, start:anchor, end: left[i]},
+                        {id:edge_counter ? edge_counter.nextNumber() : -2, highlight: true, start:anchor, end: right[j]}, ...edges]
             })
 
         if (angleLeft <= angleRight) {
+
+            let next_id = edge_counter ? edge_counter.nextNumber() : -1
             step_queue.enqueue({
                 ...defaultStep,
                 highlightPoints:[left[i].id, right[j].id],
                 points:points,
-                highlightEdges:[-1],
-                edges: [{id:-1, highlight: true, start:anchor, end: left[i]},
-                        {id:-2, highlight: true, start:anchor, end: right[j]}, ...edges]
+                highlightEdges:[next_id],
+                edges: [{id:next_id, highlight: true, start:anchor, end: left[i]},
+                        {id:edge_counter ? edge_counter.nextNumber() : -2, highlight: true, start:anchor, end: right[j]}, ...edges]
             })
             result.push(left[i]);
             i++;
         } else {
+            let next_id = edge_counter ? edge_counter.nextNumber() : -2
             step_queue.enqueue({
                 ...defaultStep,
                 highlightPoints:[left[i].id, right[j].id],
                 points:points,
-                highlightEdges:[-2],
-                edges: [{id:-1, highlight: true, start:anchor, end: left[i]},
-                        {id:-2, highlight: true, start:anchor, end: right[j]}, ...edges]
+                highlightEdges:[next_id],
+                edges: [{id:edge_counter ? edge_counter.nextNumber() : -1, highlight: true, start:anchor, end: left[i]},
+                        {id:next_id, highlight: true, start:anchor, end: right[j]}, ...edges]
             })
             result.push(right[j]);
             j++;
@@ -115,24 +128,27 @@ function merge(points: Point[], edges: Edge[], anchor: Point, left: Point[], rig
 
     // Add remaining elements from both halves
     while (i < left.length) {
+
+        let next_id = edge_counter ? edge_counter.nextNumber() : -1
         step_queue.enqueue({
                 ...defaultStep,
                 highlightPoints:[left[i].id],
                 points:points,
-                highlightEdges:[-1],
-                edges: [{id:-1, highlight: true, start:anchor, end: left[i]}, ...edges]
+                highlightEdges:[next_id],
+                edges: [{id:next_id, highlight: true, start:anchor, end: left[i]}, ...edges]
             })
         result.push(left[i]);
         i++;
     }
 
     while (j < right.length) {
+        let next_id = edge_counter ? edge_counter.nextNumber() : -1
         step_queue.enqueue({
                 ...defaultStep,
                 highlightPoints:[right[j].id],
                 points:points,
-                highlightEdges:[-1],
-                edges: [{id:-1, highlight: true, start:anchor, end: right[j]}, ...edges]
+                highlightEdges:[next_id],
+                edges: [{id:next_id, highlight: true, start:anchor, end: right[j]}, ...edges]
             })
         result.push(right[j]);
         j++;
