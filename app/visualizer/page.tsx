@@ -182,6 +182,7 @@ const PickYourPoints = () => {
     setDescription(placeHolderDecription);
     setPoints([]);
     setEdges([]);
+    setAlgo(undefined);
   };
 
   const generateRandomPoints = () => {
