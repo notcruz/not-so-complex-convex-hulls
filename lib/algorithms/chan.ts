@@ -53,18 +53,6 @@ export class ChansAlgorithm extends Algorithm {
         subset_points.unshift(rem)
         num_points = subset_points.length
 
-        // Showcase sort
-        // for (i = 0; i < num_points; i++){
-        //     let next_id = this.edge_counter.nextNumber() 
-        //     this.step_queue.enqueue({
-        //         ...defaultStep,
-        //         highlightPoints:[subset_points[i].id],
-        //         points:all_points,
-        //         highlightEdges:[next_id],
-        //         edges: [{id:next_id, highlight: true, start:lowest_leftmost, end: subset_points[i]}, ...all_edges]
-        //     })
-        // }
-
         this.step_queue.enqueue({ ...defaultStep, 
             highlightLines:"13",
             highlightPoints:[subset_points[0].id], 
@@ -173,10 +161,6 @@ export class ChansAlgorithm extends Algorithm {
         var hull_done = false;
 
         for (var n = 0; n < m ; n++){
-            if(current_point == left_most){
-                break;
-            }
-            let min_slope = slope(current_point, left_most) // initial value
             let best_candidate: Point = left_most; // initial value
 
             let tangents = build_tangent_array(current_point);
@@ -186,7 +170,8 @@ export class ChansAlgorithm extends Algorithm {
             for (i = 0; i < num_tangents; i++){
                 let candidate = tangents[i];
 
-                if ((convex_hull.includes(candidate)) || candidate.x >= current_point.x){
+                if ((convex_hull.includes(candidate) && candidate != right_most)
+                    || current_point == candidate || candidate == best_candidate){
                     continue;
                 }
 
@@ -201,55 +186,15 @@ export class ChansAlgorithm extends Algorithm {
                                         edges: [...tempEdges, ...all_edges]
                                         })
 
-                let test_slope = slope(candidate, current_point);
-                if (test_slope < min_slope){
+                if(orient(current_point, candidate, best_candidate) >= 0){
                     best_candidate = candidate;
-                    min_slope = test_slope;
                 }
             }
-            convex_hull.push(best_candidate)
-            current_point = best_candidate;
-        }
-
-        // Lower hull
-        for (;n < m; n++){
-            let min_slope = slope(current_point, right_most)
-            let best_candidate: Point = right_most; // initial value
-
-            let tangents = build_tangent_array(current_point);
-            let num_tangents = tangents.length;
-
-            for (i = 0; i < num_tangents; i++){
-                let candidate = tangents[i];
-
-                if ((convex_hull.includes(candidate)) && candidate != right_most 
-                    || candidate.x <= current_point.x){
-                    continue;
-                }
-
-                let tempEdges: Edge[] = generate_edges_from_arr(convex_hull);
-                let tempID = this.edge_counter.nextNumber();
-                tempEdges.push({id:tempID, highlight: true, start:current_point, end: candidate});
-
-
-                this.step_queue.enqueue({...defaultStep, 
-                                        highlightPoints:[current_point.id, candidate.id],
-                                        highlightEdges:[tempID],
-                                        points: all_points,
-                                        edges: [...tempEdges, ...all_edges]
-                                        })
-
-                let test_slope = slope(candidate, current_point);
-                if (test_slope < min_slope){
-                    best_candidate = candidate;
-                    min_slope = test_slope;
-                }
-            }
-            if (best_candidate == right_most){
+            if(best_candidate == right_most){
                 hull_done = true;
                 break;
             }
-            convex_hull.push(best_candidate)
+            convex_hull.push(best_candidate);
             current_point = best_candidate;
         }
 
