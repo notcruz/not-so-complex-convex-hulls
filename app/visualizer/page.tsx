@@ -175,8 +175,8 @@ const PickYourPoints = () => {
     const newPoints = [];
     const { height, width } = svgRect.current.getBoundingClientRect();
     for (let i = 0; i < RANDOM_POINTS_COUNT; i++) {
-      const x = Math.floor(Math.random() * width);
-      const y = Math.floor(Math.random() * height);
+      const x = Math.floor(Math.random() * width * .6 + width * .2);
+      const y = Math.floor(Math.random() * height * .6 + height * .2);
       newPoints.push({ id: points.length + newPoints.length + 1, x, y });
     }
 
@@ -229,7 +229,7 @@ const PickYourPoints = () => {
         );
       }
     },
-    algo?.hasNextStep() ? 10 : null
+    algo?.hasNextStep() ? 30 : null
   );
 
   return (
