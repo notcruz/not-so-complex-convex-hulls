@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 import { TestAlgorithm } from '@/lib/algorithms/TestAlgorithm';
 import { ChansAlgorithm } from '@/lib/algorithms/chan';
 import { GrahamScan } from '@/lib/algorithms/graham';
@@ -24,11 +25,11 @@ import {
   useRef,
   useState,
 } from 'react';
-import { CodeBlock, dracula } from 'react-code-blocks';
+import { atomOneDark, CodeBlock, dracula } from 'react-code-blocks';
 import { clearInterval, setInterval } from 'timers';
 import { useInterval } from 'usehooks-ts';
 
-const RANDOM_POINTS_COUNT = 50;
+const RANDOM_POINTS_COUNT = 25;
 
 export default function Visualizer() {
   return (
@@ -70,8 +71,7 @@ const AlgorithmCode = () => {
       <CodeBlock
         text={algorithm?.code}
         language={'python'}
-        theme={dracula}
-        wrapLongLines
+        theme={atomOneDark}
         showLineNumbers
       />
     </Container>
@@ -88,19 +88,18 @@ const PickYourPoints = () => {
     y: number;
   }>({ x: 0, y: 0 });
 
+  const [interval, setInterval] = useState(1000);
   const svgRect = useRef(null);
   const intervalRef = useRef(null);
 
   const algorithm = useAtomValue(algorithmAtom);
   const [algo, setAlgo] = useState<Algorithm>();
+  const [complete, setComplete] = useState(false);
 
   // reset board whenever the algorithm is updated
   useEffect(() => {
     if (algorithm) {
-      //reset()
-      setEdges([]);
-      setStarted(false);
-      setPaused(true);
+      reset();
     }
   }, [algorithm]);
 
@@ -159,12 +158,15 @@ const PickYourPoints = () => {
           };
         })
       );
+
+      setComplete(!algo.hasNextStep());
     }
 
     setPaused(true);
   };
 
   const reset = () => {
+    setComplete(false);
     setStarted(false);
     setPaused(true);
     setPoints([]);
@@ -175,9 +177,9 @@ const PickYourPoints = () => {
     const newPoints = [];
     const { height, width } = svgRect.current.getBoundingClientRect();
     for (let i = 0; i < RANDOM_POINTS_COUNT; i++) {
-      const x = Math.floor(Math.random() * width * .6 + width * .2);
-      const y = Math.floor(Math.random() * height * .6 + height * .2);
-      newPoints.push({ id: points.length + newPoints.length + 1, x, y });
+      const x = Math.floor(Math.random() * width);
+      const y = Math.floor(Math.random() * height);
+      newPoints.push({ id: newPoints.length + 1, x, y });
     }
 
     setPoints(newPoints);
@@ -219,6 +221,7 @@ const PickYourPoints = () => {
             };
           })
         );
+
         setEdges(
           result?.edges.map((edge) => {
             return {
@@ -227,9 +230,11 @@ const PickYourPoints = () => {
             };
           })
         );
+
+        setComplete(!algo?.hasNextStep());
       }
     },
-    algo?.hasNextStep() ? 30 : null
+    algo?.hasNextStep() ? interval : null
   );
 
   return (
@@ -286,23 +291,41 @@ const PickYourPoints = () => {
           <PauseIcon className="h-4 w-4 fill-current" />
         </Button>
         {started ? (
-          <Button disabled={!paused} onClick={() => setPaused(false)}>
+          <Button
+            disabled={!paused || complete}
+            onClick={() => setPaused(false)}
+          >
             <ResumeIcon className="h-4 w-4 fill-current" />
           </Button>
         ) : (
-          <Button onClick={handleStart}>
+          <Button
+            onClick={handleStart}
+            disabled={points.length === 0 || complete}
+          >
             <PlayIcon className="h-4 w-4 fill-current" />
           </Button>
         )}
-        <Button onClick={handleStep}>
+        <Button onClick={handleStep} disabled={points.length === 0 || complete}>
           <TrackNextIcon className="h-4 w-4 fill-current" />
         </Button>
-        <Button onClick={reset}>
+        <Button onClick={reset} disabled={points.length === 0}>
           <ResetIcon className="h-4 w-4 fill-current" />
         </Button>
         <Button disabled={!paused} onClick={generateRandomPoints}>
           Generate Random Points
         </Button>
+      </div>
+      <div className="flex items-center justify-center mt-3">
+        <Slider
+          className="max-w-96"
+          defaultValue={[1000]}
+          min={10}
+          max={1000}
+          step={50}
+          onValueCommit={(e) => {
+            setInterval(e[0]);
+          }}
+        />
       </div>
     </Container>
   );
