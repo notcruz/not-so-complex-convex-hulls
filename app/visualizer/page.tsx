@@ -177,7 +177,7 @@ const PickYourPoints = () => {
     for (let i = 0; i < RANDOM_POINTS_COUNT; i++) {
       const x = Math.floor(Math.random() * width);
       const y = Math.floor(Math.random() * height);
-      newPoints.push({ id: points.length + 1, x, y });
+      newPoints.push({ id: points.length + newPoints.length + 1, x, y });
     }
 
     setPoints(newPoints);
