@@ -1,6 +1,5 @@
 import { Algorithm, Point, defaultStep, Edge } from '@/types';
-import { generate_edges_from_arr, slope } from './ConvexHull';
-
+import { generate_edges_from_arr, orient } from './ConvexHull';
 
 export class JarvisMarch extends Algorithm {
     
@@ -10,7 +9,6 @@ export class JarvisMarch extends Algorithm {
     }
 
     jarvis_march(points: Point[]): Point[] {
-        points.sort((a, b) => a.x - b.x)
 
         var right_most = points[0];
         var left_most = points[0];
@@ -34,67 +32,31 @@ export class JarvisMarch extends Algorithm {
 
         // Upper hull
         var current_point = convex_hull[convex_hull.length-1];
-        while (current_point != left_most){
-            let min_slope = slope(current_point, left_most)
+        while (true){
             let best_candidate: Point = left_most; // initial value
             for (i = 0; i < num_points; i++){
                 let candidate = points[i];
 
-                if ((convex_hull.includes(candidate)) || candidate.x >= current_point.x){
+                if ((convex_hull.includes(candidate) && candidate != right_most) 
+                    || current_point == candidate || candidate == best_candidate){
                     continue;
                 }
 
                 let tempEdges: Edge[] = generate_edges_from_arr(convex_hull);
                 tempEdges.push({id:-1, highlight: true, start:current_point, end: candidate});
 
-
                 this.step_queue.enqueue({...defaultStep, 
                                         highlightEdges:[-1],
-                                        highlightPoints:[left_most.id, right_most.id, current_point.id, candidate.id, -1],
+                                        highlightPoints:[current_point.id, candidate.id],
                                         points: points,
                                         edges: tempEdges
                                         })
 
-                let test_slope = slope(candidate, current_point);
-                if (test_slope < min_slope){
+                if (orient(current_point, candidate, best_candidate) >= 0){
                     best_candidate = candidate;
-                    min_slope = test_slope;
                 }
             }
-            convex_hull.push(best_candidate)
-            current_point = best_candidate;
-        }
-
-        // Lower hull
-        while (true){
-            let min_slope = slope(current_point, right_most)
-            let best_candidate: Point = right_most; // initial value
-            for (i = 0; i < num_points; i++){
-                let candidate = points[i];
-
-                if ((convex_hull.includes(candidate)) && candidate != right_most 
-                    || candidate.x <= current_point.x){
-                    continue;
-                }
-
-                let tempEdges: Edge[] = generate_edges_from_arr(convex_hull);
-                tempEdges.push({id:-1, highlight: true, start:current_point, end: candidate});
-
-
-                this.step_queue.enqueue({...defaultStep, 
-                                        highlightPoints:[left_most.id, right_most.id, current_point.id, candidate.id, -1],
-                                        highlightEdges:[-1],
-                                        points: points,
-                                        edges: tempEdges
-                                        })
-
-                let test_slope = slope(candidate, current_point);
-                if (test_slope < min_slope){
-                    best_candidate = candidate;
-                    min_slope = test_slope;
-                }
-            }
-            if (best_candidate == right_most){
+            if(best_candidate == right_most){
                 break;
             }
             convex_hull.push(best_candidate)

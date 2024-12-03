@@ -17,7 +17,7 @@ export class EdgeCounter{
 
 
 export function orient(p: Point, q: Point, r: Point) : number {
-    // Return true if p->q->r is a left-hand turn
+    // Return positive if p->q->r is a left-hand turn
     let {x:px, y:py} = p;
     let {x:qx, y:qy} = q;
     let {x:rx, y:ry} = r;
