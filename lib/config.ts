@@ -86,7 +86,7 @@ export const algorithms: AlgorithmDetails[] = [
     code: 
    `def chans(points):
       n = len(points)
-      for(m = 1; m <= n; m *= 2):
+      for(m = 2; m <= n; m *= m):
         mini_hulls = [] # Group up points arbitrarily
         for(i = 0; i < n; i += m):
           current_hull = graham_scan(points[i, i + m])

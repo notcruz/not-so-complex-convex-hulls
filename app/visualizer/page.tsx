@@ -190,7 +190,7 @@ const PickYourPoints = () => {
         return { ...edge, highlight: result.highlightEdges.includes(edge.id) }
     }))
     }
-  }, algo?.hasNextStep() ? 10 : null)
+  }, algo?.hasNextStep() ? 50 : null)
 
   return (
     <Container title="Pick Your Points" className="flex-1">

@@ -13,7 +13,7 @@ export class ChansAlgorithm extends Algorithm {
     chans_algorithm(points: Point[]): void {
         const n = points.length;
 
-        for (let m = 4; m <= n; m*= 2){
+        for (let m = 4; m <= n; m *= m){
             const subsets: Point[][] = [];
             let mini_hull_edges: Edge[] = [];
             for (let i = 0; i < n; i += m){
@@ -54,16 +54,16 @@ export class ChansAlgorithm extends Algorithm {
         num_points = subset_points.length
 
         // Showcase sort
-        for (i = 0; i < num_points; i++){
-            let next_id = this.edge_counter.nextNumber() 
-            this.step_queue.enqueue({
-                ...defaultStep,
-                highlightPoints:[subset_points[i].id],
-                points:all_points,
-                highlightEdges:[next_id],
-                edges: [{id:next_id, highlight: true, start:lowest_leftmost, end: subset_points[i]}, ...all_edges]
-            })
-        }
+        // for (i = 0; i < num_points; i++){
+        //     let next_id = this.edge_counter.nextNumber() 
+        //     this.step_queue.enqueue({
+        //         ...defaultStep,
+        //         highlightPoints:[subset_points[i].id],
+        //         points:all_points,
+        //         highlightEdges:[next_id],
+        //         edges: [{id:next_id, highlight: true, start:lowest_leftmost, end: subset_points[i]}, ...all_edges]
+        //     })
+        // }
 
         this.step_queue.enqueue({ ...defaultStep, 
             highlightLines:"13",
