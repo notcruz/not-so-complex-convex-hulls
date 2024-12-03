@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 import { TestAlgorithm } from '@/lib/algorithms/TestAlgorithm';
 import { ChansAlgorithm } from '@/lib/algorithms/chan';
 import { GrahamScan } from '@/lib/algorithms/graham';
@@ -87,6 +88,7 @@ const PickYourPoints = () => {
     y: number;
   }>({ x: 0, y: 0 });
 
+  const [interval, setInterval] = useState(1000);
   const svgRect = useRef(null);
   const intervalRef = useRef(null);
 
@@ -97,10 +99,7 @@ const PickYourPoints = () => {
   // reset board whenever the algorithm is updated
   useEffect(() => {
     if (algorithm) {
-      //reset()
-      setEdges([]);
-      setStarted(false);
-      setPaused(true);
+      reset();
     }
   }, [algorithm]);
 
@@ -235,7 +234,7 @@ const PickYourPoints = () => {
         setComplete(!algo?.hasNextStep());
       }
     },
-    algo?.hasNextStep() ? 1000 : null
+    algo?.hasNextStep() ? interval : null
   );
 
   return (
@@ -315,6 +314,18 @@ const PickYourPoints = () => {
         <Button disabled={!paused} onClick={generateRandomPoints}>
           Generate Random Points
         </Button>
+      </div>
+      <div className="flex items-center justify-center mt-3">
+        <Slider
+          className="max-w-96"
+          defaultValue={[1000]}
+          min={10}
+          max={1000}
+          step={50}
+          onValueCommit={(e) => {
+            setInterval(e[0]);
+          }}
+        />
       </div>
     </Container>
   );
