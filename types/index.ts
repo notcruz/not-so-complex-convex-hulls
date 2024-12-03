@@ -1,4 +1,4 @@
-import { LinkedQueue } from "@/lib/queue";
+import { LinkedQueue } from '@/lib/queue';
 
 export type AlgorithmDetails = {
   type: string;
@@ -12,10 +12,12 @@ export type AlgorithmDetails = {
   resources: string[];
 };
 
-
 export abstract class Algorithm {
   step_queue: LinkedQueue<AlgorithmStep> = new LinkedQueue();
-  runNextStep(points: Readonly<Point[]>, edges: Readonly<Edge[]>): AlgorithmStep | undefined {
+  runNextStep(
+    points: Readonly<Point[]>,
+    edges: Readonly<Edge[]>
+  ): AlgorithmStep | undefined {
     return this.step_queue.dequeue();
   }
 
@@ -23,7 +25,6 @@ export abstract class Algorithm {
     return !this.step_queue.isEmpty();
   }
 }
-
 
 export type AlgorithmStep = {
   // lines to highlight: 1-5
@@ -37,32 +38,28 @@ export type AlgorithmStep = {
 
   points: Point[];
 
-  edges: Edge[]
-}
+  edges: Edge[];
+};
 
 export const defaultStep: AlgorithmStep = {
-  highlightLines: "",
+  highlightLines: '',
   highlightPoints: [],
   highlightEdges: [],
   points: [],
-  edges: []
-}
-
+  edges: [],
+};
 
 export type Entity = {
   id: number;
-  highlight?: boolean
-}
+  highlight?: boolean;
+};
 
 export type Point = Entity & {
   x: number;
   y: number;
-}
-
+};
 
 export type Edge = Entity & {
   start: Point;
   end: Point;
-}
-
-
+};

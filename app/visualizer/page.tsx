@@ -24,11 +24,11 @@ import {
   useRef,
   useState,
 } from 'react';
-import { CodeBlock, dracula } from 'react-code-blocks';
+import { atomOneDark, CodeBlock, dracula } from 'react-code-blocks';
 import { clearInterval, setInterval } from 'timers';
 import { useInterval } from 'usehooks-ts';
 
-const RANDOM_POINTS_COUNT = 50;
+const RANDOM_POINTS_COUNT = 25;
 
 export default function Visualizer() {
   return (
@@ -70,8 +70,7 @@ const AlgorithmCode = () => {
       <CodeBlock
         text={algorithm?.code}
         language={'python'}
-        theme={dracula}
-        wrapLongLines
+        theme={atomOneDark}
         showLineNumbers
       />
     </Container>
@@ -93,6 +92,7 @@ const PickYourPoints = () => {
 
   const algorithm = useAtomValue(algorithmAtom);
   const [algo, setAlgo] = useState<Algorithm>();
+  const [complete, setComplete] = useState(false);
 
   // reset board whenever the algorithm is updated
   useEffect(() => {
@@ -159,12 +159,15 @@ const PickYourPoints = () => {
           };
         })
       );
+
+      setComplete(!algo.hasNextStep());
     }
 
     setPaused(true);
   };
 
   const reset = () => {
+    setComplete(false);
     setStarted(false);
     setPaused(true);
     setPoints([]);
@@ -177,7 +180,7 @@ const PickYourPoints = () => {
     for (let i = 0; i < RANDOM_POINTS_COUNT; i++) {
       const x = Math.floor(Math.random() * width);
       const y = Math.floor(Math.random() * height);
-      newPoints.push({ id: points.length + newPoints.length + 1, x, y });
+      newPoints.push({ id: newPoints.length + 1, x, y });
     }
 
     setPoints(newPoints);
@@ -219,6 +222,7 @@ const PickYourPoints = () => {
             };
           })
         );
+
         setEdges(
           result?.edges.map((edge) => {
             return {
@@ -227,9 +231,11 @@ const PickYourPoints = () => {
             };
           })
         );
+
+        setComplete(!algo?.hasNextStep());
       }
     },
-    algo?.hasNextStep() ? 10 : null
+    algo?.hasNextStep() ? 1000 : null
   );
 
   return (
@@ -286,18 +292,24 @@ const PickYourPoints = () => {
           <PauseIcon className="h-4 w-4 fill-current" />
         </Button>
         {started ? (
-          <Button disabled={!paused} onClick={() => setPaused(false)}>
+          <Button
+            disabled={!paused || complete}
+            onClick={() => setPaused(false)}
+          >
             <ResumeIcon className="h-4 w-4 fill-current" />
           </Button>
         ) : (
-          <Button onClick={handleStart}>
+          <Button
+            onClick={handleStart}
+            disabled={points.length === 0 || complete}
+          >
             <PlayIcon className="h-4 w-4 fill-current" />
           </Button>
         )}
-        <Button onClick={handleStep}>
+        <Button onClick={handleStep} disabled={points.length === 0 || complete}>
           <TrackNextIcon className="h-4 w-4 fill-current" />
         </Button>
-        <Button onClick={reset}>
+        <Button onClick={reset} disabled={points.length === 0}>
           <ResetIcon className="h-4 w-4 fill-current" />
         </Button>
         <Button disabled={!paused} onClick={generateRandomPoints}>
