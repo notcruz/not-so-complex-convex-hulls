@@ -1,6 +1,7 @@
 import {Algorithm, defaultStep, Point, Edge } from "@/types"
 import { orient, generate_edges_from_arr, mergeSortByAngle, generate_edges_from_arr_closed, EdgeCounter} from './ConvexHull.ts';
 import { minifySync } from "next/dist/build/swc/index";
+import { after } from "node:test";
 
 export class ChansAlgorithm extends Algorithm {
     edge_counter: EdgeCounter;
@@ -106,8 +107,21 @@ export class ChansAlgorithm extends Algorithm {
             var tangents: Point[] = []
             for(var j = 0; j < num_subsets; j++){
                 let curr_subset = subsets[j];
-                if(curr_subset.length <= 2){
-                    tangents = [...tangents, ...curr_subset];
+                if(curr_subset.length == 1){
+                    if(curr_subset[0] != current_point){
+                        tangents.push(curr_subset[0]);
+                    }
+                }
+                else if(curr_subset.length == 2){
+                    //tangents = [...tangents, ...curr_subset];
+                    let p = curr_subset[0];
+                    let q = curr_subset[1];
+                    if(current_point != p  && orient(current_point, p, q) >= 0){
+                        tangents.push(p);
+                    }
+                    else if(current_point != q){
+                        tangents.push(q);
+                    }
                 }
                 else if(!curr_subset.includes(current_point)){
                     let t1 = findTangent(curr_subset, current_point);
@@ -120,6 +134,7 @@ export class ChansAlgorithm extends Algorithm {
             }
             return tangents;
         }
+        console.log(subsets);
 
         var right_most = subsets[0][0];
         var left_most = subsets[0][0];
@@ -148,18 +163,19 @@ export class ChansAlgorithm extends Algorithm {
         var hull_done = false;
 
         for (var n = 0; n < m ; n++){
-            let best_candidate: Point = left_most; // initial value
 
             let tangents = build_tangent_array(current_point);
-            console.log("m", m);
-            console.log("Num subsets", subsets.length);
+            //console.log("m", m);
+            let best_candidate: Point = tangents[0]; // initial value
+            //console.log("Num subsets", subsets.length);
+            console.log("Current point", current_point);
             console.log("Tangents", tangents);
             let num_tangents = tangents.length;
 
             for (i = 0; i < num_tangents; i++){
                 let candidate = tangents[i];
-                console.log("candidate", candidate);
-                console.log("best_candidate", best_candidate);
+                //console.log("candidate", candidate);
+                //console.log("best_candidate", best_candidate);
 
                 if ((convex_hull.includes(candidate) && candidate != right_most)
                     || current_point == candidate || candidate == best_candidate){
@@ -181,7 +197,7 @@ export class ChansAlgorithm extends Algorithm {
                     best_candidate = candidate;
                 }
             }
-            if(best_candidate == right_most){
+            if(best_candidate === right_most){
                 hull_done = true;
                 break;
             }
@@ -201,64 +217,58 @@ export class ChansAlgorithm extends Algorithm {
 }
 
 function findTangent(mini_hull: Point[], Q: Point): Point {
-        const n = mini_hull.length;
+        console.log("mini_hull", mini_hull);
+        console.log("Q", Q);
+        let n = mini_hull.length;
+        let [a, b] = [0, n - 1];
+        if (orient(Q, mini_hull[a], mini_hull[(a - 1 + n) % n]) >= 0
+        && orient(Q, mini_hull[a], mini_hull[(a + 1) % n]) >= 0){
+            return mini_hull[a];
+        }
+        if (orient(Q, mini_hull[b], mini_hull[(b - 1 + n) % n]) >= 0
+        && orient(Q, mini_hull[b], mini_hull[(b + 1) % n]) >= 0){
+            return mini_hull[b];
+        }
+        while(true){
+            let c = Math.floor((a + b) / 2);
+            let before_c = orient(Q, mini_hull[c], mini_hull[(c - 1 + n) % n]);
+            let after_c = orient(Q, mini_hull[c], mini_hull[(c + 1) % n]);
+            if(before_c >= 0 && after_c >= 0){
+                console.log("Found tangent", mini_hull[c]);
+                return mini_hull[c];
+            }
 
-        // Binary search to find the upper tangent
-        //let low = 0, high = n - 1;
-
-        //while (low != high) {
-        //    const mid = Math.floor((low + high) / 2);
-        //    const prev = (mid - 1 + n) % n;
-        //    const next = (mid + 1) % n;
-
-        //    // Check if the current point is the tangent
-        //    if (
-        //        orient(Q, mini_hull[mid], mini_hull[prev]) >= 0 &&
-        //        orient(Q, mini_hull[mid], mini_hull[next]) >= 0
-        //    ) {
-        //        return mini_hull[mid];
-        //    }
-
-        //    // Determine search direction
-        //    if (orient(Q, mini_hull[mid], mini_hull[next]) < 0) {
-        //        low = mid + 1; // Move to the right
-        //    } else {
-        //        high = mid; // Move to the left
-        //    }
-        //}
-        //return mini_hull[low];
-
-
-        //let l = 0;
-        //let r = mini_hull.length;
-        //let l_before = orient(Q, mini_hull[0], mini_hull[r-1]);
-        //let l_after = orient(Q, mini_hull[0], mini_hull[1]);
-        //while(l < r){
-        //    let c = Math.floor((l + r) / 2);
-        //    let c_before = orient(Q, mini_hull[c], mini_hull[(c - 1 + mini_hull.length) % mini_hull.length]);
-        //    let c_after = orient(Q, mini_hull[c], mini_hull[(c + 1) % mini_hull.length]);
-        //    let c_side = orient(Q, mini_hull[l], mini_hull[c]);
-        //    if (c_before >= 0 && c_after >= 0){
-        //        return mini_hull[c];
-        //    }
-        //    else if(c_after < 0){//(c_side > 0) && (l_after < 0 || l_before == l_after)){//|| (c_side < 0 && c_before < 0)){
-        //        l = c;
-        //    }
-        //    else{
-        //        r = c;
-        //    }
-        //    l_before = -c_after;
-        //    l_after = orient(Q, mini_hull[l], mini_hull[(l + 1) % mini_hull.length]);
-        //}
-        //return mini_hull[l];
-
-        for(var s = 0; s < mini_hull.length; s++){
-            if(orient(Q, mini_hull[s], mini_hull[(s-1+mini_hull.length) % mini_hull.length]) >= 0 &&
-            orient(Q, mini_hull[s], mini_hull[(s+1) % mini_hull.length]) >= 0){
-                return mini_hull[s];
+            let a_on_left_of_tans = orient(Q, mini_hull[a], mini_hull[(a + 1) % n]) >= 0;
+            let a_above_c = orient(Q, mini_hull[a], mini_hull[c]) >= 0;
+            let c_on_left_of_tans = orient(Q, mini_hull[c], mini_hull[(c + 1) % n]) >= 0;
+            if(!a_on_left_of_tans){ // a on right
+                if(!a_above_c && !c_on_left_of_tans){
+                    a = c;
+                }
+                else{
+                    b = c;
+                }
+            }
+            else{ // on left
+                if(a_above_c && c_on_left_of_tans){
+                    a = c;
+                }
+                else if(!c_on_left_of_tans){ // c on right
+                    a = c;
+                }
+                else{
+                    b = c;
+                }
             }
         }
-        return mini_hull[s];
+        //Nuclear option
+        //for(var s = 0; s < mini_hull.length; s++){
+        //    if(orient(Q, mini_hull[s], mini_hull[(s-1+mini_hull.length) % mini_hull.length]) >= 0 &&
+        //    orient(Q, mini_hull[s], mini_hull[(s+1) % mini_hull.length]) >= 0){
+        //        return mini_hull[s];
+        //    }
+        //}
+        //return mini_hull[s];
     }
 
 let test_mini_hull: Point[] = [];
