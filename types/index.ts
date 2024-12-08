@@ -10,6 +10,7 @@ export type AlgorithmDetails = {
   };
   code: string;
   resources: string[];
+  steps: { [step: string]: string };
 };
 
 export abstract class Algorithm {
