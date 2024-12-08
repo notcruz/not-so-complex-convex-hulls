@@ -1,44 +1,45 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { TestAlgorithm } from '@/lib/algorithms/TestAlgorithm';
-import { ChansAlgorithm } from '@/lib/algorithms/chan';
-import { GrahamScan } from '@/lib/algorithms/graham';
-import { JarvisMarch } from '@/lib/algorithms/jarvis';
-import { NaiveAlgorithm } from '@/lib/algorithms/naive';
-import { cn } from '@/lib/utils';
-import { algorithmAtom } from '@/state';
-import { Point, Edge, Algorithm } from '@/types';
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { TestAlgorithm } from "@/lib/algorithms/TestAlgorithm";
+import { ChansAlgorithm } from "@/lib/algorithms/chan";
+import { GrahamScan } from "@/lib/algorithms/graham";
+import { JarvisMarch } from "@/lib/algorithms/jarvis";
+import { NaiveAlgorithm } from "@/lib/algorithms/naive";
+import { cn } from "@/lib/utils";
+import { algorithmAtom } from "@/state";
+import { Point, Edge, Algorithm } from "@/types";
 import {
   PauseIcon,
   PlayIcon,
   ResetIcon,
   ResumeIcon,
   TrackNextIcon,
-} from '@radix-ui/react-icons';
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
+} from "@radix-ui/react-icons";
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   MouseEvent,
   MouseEventHandler,
   useEffect,
   useRef,
   useState,
-} from 'react';
-import { atomOneDark, CodeBlock, dracula } from 'react-code-blocks';
-import { clearInterval, setInterval } from 'timers';
-import { useInterval } from 'usehooks-ts';
+} from "react";
+import { atomOneDark, CodeBlock, dracula } from "react-code-blocks";
+import { clearInterval, setInterval } from "timers";
+import { useInterval } from "usehooks-ts";
 
 const RANDOM_POINTS_COUNT = 25;
-const placeHolderDecription = "Step through an algorithm to see described steps.";
+const placeHolderDecription =
+  "Step through an algorithm to see described steps.";
 const sharedStepDescription = atom(placeHolderDecription);
 const sharedPauseState = atom(true);
 
 export default function Visualizer() {
   return (
-    <div className={'flex-1 grid grid-cols-6 gap-x-6 m-6'}>
+    <div className={"flex-1 grid grid-cols-6 gap-x-6 m-6"}>
       <AlgorithmCode />
-      <div className={'col-span-4 flex flex-col gap-y-6'}>
+      <div className={"col-span-4 flex flex-col gap-y-6"}>
         <PickYourPoints />
         <Description />
       </div>
@@ -56,8 +57,8 @@ const Container = (props: ContainerProps) => {
   return (
     <div
       className={cn(
-        'flex flex-col gap-y-3 border rounded p-6',
-        props.className
+        "flex flex-col gap-y-3 border rounded p-6",
+        props.className,
       )}
     >
       <div className="text-lg font-semibold">{props.title}</div>
@@ -73,7 +74,7 @@ const AlgorithmCode = () => {
     <Container title="Code Block" className="col-span-2">
       <CodeBlock
         text={algorithm?.code}
-        language={'python'}
+        language={"python"}
         theme={atomOneDark}
         showLineNumbers
       />
@@ -118,7 +119,7 @@ const PickYourPoints = () => {
   const handlePointGeneration = (e: MouseEvent<SVGElement>) => {
     if (started) return;
     const target = e.target as SVGElement;
-    const rect = target.getBoundingClientRect();
+    const rect = svgRect.current.getBoundingClientRect();
     createPoint(e.clientX - rect.left, rect.bottom - e.clientY);
   };
 
@@ -153,7 +154,7 @@ const PickYourPoints = () => {
             ...point,
             highlight: result.highlightPoints.includes(point.id),
           };
-        })
+        }),
       );
 
       setEdges(
@@ -162,7 +163,7 @@ const PickYourPoints = () => {
             ...edge,
             highlight: result.highlightEdges.includes(edge.id),
           };
-        })
+        }),
       );
 
       setComplete(!algo.hasNextStep());
@@ -172,15 +173,15 @@ const PickYourPoints = () => {
   };
 
   const reset = () => {
-    while(algo?.hasNextStep()){
+    while (algo?.hasNextStep()) {
       // throaway everything left
-      algo.runNextStep([],[]);
+      algo.runNextStep([], []);
     }
+
     setComplete(false);
     setStarted(false);
     setPaused(true);
     setDescription(placeHolderDecription);
-    setPoints([]);
     setEdges([]);
     setAlgo(undefined);
   };
@@ -200,16 +201,16 @@ const PickYourPoints = () => {
   const play = () => {
     var testAlgorithm: Algorithm | undefined = undefined;
     switch (algorithm?.type) {
-      case 'graham':
+      case "graham":
         testAlgorithm = new GrahamScan(points);
         break;
-      case 'naive':
+      case "naive":
         testAlgorithm = new NaiveAlgorithm(points);
         break;
-      case 'jarvis':
+      case "jarvis":
         testAlgorithm = new JarvisMarch(points);
         break;
-      case 'chans':
+      case "chans":
         testAlgorithm = new ChansAlgorithm(points);
         break;
       default:
@@ -232,7 +233,7 @@ const PickYourPoints = () => {
               ...point,
               highlight: result.highlightPoints.includes(point.id),
             };
-          })
+          }),
         );
 
         setEdges(
@@ -241,13 +242,13 @@ const PickYourPoints = () => {
               ...edge,
               highlight: result.highlightEdges.includes(edge.id),
             };
-          })
+          }),
         );
 
         setComplete(!algo?.hasNextStep());
       }
     },
-    algo?.hasNextStep() ? interval : null
+    algo?.hasNextStep() ? interval : null,
   );
 
   return (
@@ -255,20 +256,20 @@ const PickYourPoints = () => {
       <svg
         ref={svgRect}
         className={cn(
-          'flex-1 border border-primary',
-          started ? 'cursor-not-allowed' : 'cursor-pointer'
+          "flex-1 border border-primary",
+          started ? "cursor-not-allowed" : "cursor-pointer",
         )}
         onMouseMoveCapture={handleCursorNavigation}
         onClick={handlePointGeneration}
       >
-        {points.map(({ x, y, highlight }) => {
-          const fill = highlight ? 'orange' : 'black';
-          const stroke = highlight ? 'orange' : 'black';
+        {points.map(({ id, x, y, highlight }) => {
+          const fill = highlight ? "orange" : "black";
+          const stroke = highlight ? "orange" : "black";
           var rect = svgRect.current.getBoundingClientRect();
           const fixed_y = rect.bottom - y - rect.top;
           return (
             <circle
-              key={`${x}_${y}`}
+              key={id}
               cx={x}
               cy={fixed_y}
               r={5}
@@ -278,8 +279,8 @@ const PickYourPoints = () => {
           );
         })}
         {edges.map(({ id, highlight, start, end }) => {
-          const fill = highlight ? 'orange' : 'black';
-          const stroke = highlight ? 'orange' : 'black';
+          const fill = highlight ? "orange" : "black";
+          const stroke = highlight ? "orange" : "black";
           var rect = svgRect.current.getBoundingClientRect();
           const fixed_sy = rect.bottom - start.y - rect.top;
           const fixed_ey = rect.bottom - end.y - rect.top;
@@ -348,14 +349,18 @@ const Description = () => {
   const step = useAtomValue(sharedStepDescription);
   const desc = () => {
     return step;
-  }
-  
-  return <Container title="Step Description">
-    <div
-      style={{
-        height: "200px",
-        overflow: "hidden",
-      }}
-    >{desc()}</div>
-    </Container>;
+  };
+
+  return (
+    <Container title="Step Description">
+      <div
+        style={{
+          height: "200px",
+          overflow: "hidden",
+        }}
+      >
+        {desc()}
+      </div>
+    </Container>
+  );
 };

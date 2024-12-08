@@ -29,15 +29,15 @@ export default function Home() {
         <h1 className="font-bold text-2xl">Not-So-Complex Convex Hulls</h1>
         <p>
           An interactive learning tool that walks users through the Naive
-          Algorithm, Graham&#39;s Scan, Jarvis March, and Chan&#39;s Algorithm, for generating
-          convex hulls. It provides step-by-step visualizations on different
-          point sets, helping users understand how each algorithm makes
-          decisions and approaches the problem of convex hull construction in
-          computational geometry.
+          Algorithm, Graham&#39;s Scan, Jarvis March, and Chan&#39;s Algorithm,
+          for generating convex hulls. It provides step-by-step visualizations
+          on different point sets, helping users understand how each algorithm
+          makes decisions and approaches the problem of convex hull construction
+          in computational geometry.
         </p>
       </div>
       <div className="flex flex-col gap-y-9 mb-24">
-        <div className="grid grid-cols-4 gap-x-6">
+        <div className="grid grid-cols-2 grid-rows-2 gap-6">
           {algorithms.map((algorithm) => {
             return (
               <Card key={algorithm.name}>
