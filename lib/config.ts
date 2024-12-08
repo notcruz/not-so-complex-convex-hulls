@@ -98,8 +98,8 @@ export const algorithms: AlgorithmDetails[] = [
         and jarvis_helper will return an empty list if it has an
         unfinished hull by the end of those m iteration.
         2) Instead of using all the points of the minihulls, 
-        jarvis_helper will find the two tangents of each hull for
-        its current_point using binary search.
+        jarvis_helper will find the upper tangent of each hull for
+        the current_point using binary search.
         """
         hull_maybe = jarvis_helper(mini_hulls, m)
         if(hull_maybe != []):
