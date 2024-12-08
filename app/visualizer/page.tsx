@@ -172,6 +172,10 @@ const PickYourPoints = () => {
   };
 
   const reset = () => {
+    while(algo?.hasNextStep()){
+      // throaway everything left
+      algo.runNextStep([],[]);
+    }
     setComplete(false);
     setStarted(false);
     setPaused(true);
