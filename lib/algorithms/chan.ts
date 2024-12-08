@@ -1,5 +1,6 @@
 import {Algorithm, defaultStep, Point, Edge } from "@/types"
-import { orient, generate_edges_from_arr, mergeSortByAngle, slope, generate_edges_from_arr_closed, EdgeCounter} from './ConvexHull.ts';
+import { orient, generate_edges_from_arr, mergeSortByAngle, generate_edges_from_arr_closed, EdgeCounter} from './ConvexHull.ts';
+import { minifySync } from "next/dist/build/swc/index";
 
 export class ChansAlgorithm extends Algorithm {
     edge_counter: EdgeCounter;
@@ -13,7 +14,7 @@ export class ChansAlgorithm extends Algorithm {
     chans_algorithm(points: Point[]): void {
         const n = points.length;
 
-        for (let m = 4; m <= n; m *= m){
+        for (let m = 2; m <= n; m *= m){
             const subsets: Point[][] = [];
             let mini_hull_edges: Edge[] = [];
             for (let i = 0; i < n; i += m){
@@ -109,25 +110,12 @@ export class ChansAlgorithm extends Algorithm {
                     tangents = [...tangents, ...curr_subset];
                 }
                 else if(!curr_subset.includes(current_point)){
-                    let {lower: t1, upper: t2} = findTangents(curr_subset, current_point);
+                    let t1 = findTangent(curr_subset, current_point);
                     tangents.push(t1);
-                    tangents.push(t2);
                 }
                 else{
                     let index = curr_subset.indexOf(current_point);
-                    let last_index = curr_subset.length - 1;
-                    if(index == 0){
-                        tangents.push(curr_subset[1]);
-                        tangents.push(curr_subset[last_index]);
-                    }
-                    else if(index == last_index){
-                        tangents.push(curr_subset[last_index - 1]);
-                        tangents.push(curr_subset[0]);
-                    }
-                    else{
-                        tangents.push(curr_subset[index - 1]);
-                        tangents.push(curr_subset[index + 1]);
-                    }
+                    tangents.push(curr_subset[(index + 1) % curr_subset.length])
                 }
             }
             return tangents;
@@ -156,7 +144,6 @@ export class ChansAlgorithm extends Algorithm {
 
         var convex_hull = [right_most];
 
-        // Upper hull
         var current_point = convex_hull[convex_hull.length-1];
         var hull_done = false;
 
@@ -164,11 +151,15 @@ export class ChansAlgorithm extends Algorithm {
             let best_candidate: Point = left_most; // initial value
 
             let tangents = build_tangent_array(current_point);
-            console.log("Tangents upper hull", tangents);
+            console.log("m", m);
+            console.log("Num subsets", subsets.length);
+            console.log("Tangents", tangents);
             let num_tangents = tangents.length;
 
             for (i = 0; i < num_tangents; i++){
                 let candidate = tangents[i];
+                console.log("candidate", candidate);
+                console.log("best_candidate", best_candidate);
 
                 if ((convex_hull.includes(candidate) && candidate != right_most)
                     || current_point == candidate || candidate == best_candidate){
@@ -209,101 +200,75 @@ export class ChansAlgorithm extends Algorithm {
     }
 }
 
-function findTangents(mini_hull: Point[], Q: Point): {lower: Point; upper: Point} {
+function findTangent(mini_hull: Point[], Q: Point): Point {
         const n = mini_hull.length;
 
-        function crossProduct(A: Point, B: Point, Q: Point): number {
-            // Q->A x Q->B
-            return (A.x - Q.x) * (B.y - Q.y) - (A.y - Q.y) * (B.x - Q.x);
-        }
-
-        // Binary search to find the lower tangent
-        function findLowerTangent(): Point {
-            let low = 0, high = n - 1;
-            if (
-                crossProduct(mini_hull[high], mini_hull[high - 1], Q) <= 0 &&
-                crossProduct(mini_hull[high], mini_hull[0], Q) <= 0
-            ) {
-                return mini_hull[high];
-            }
-            if (
-                crossProduct(mini_hull[low], mini_hull[low + 1], Q) <= 0 &&
-                crossProduct(mini_hull[low], mini_hull[high], Q) <= 0
-            ) {
-                return mini_hull[low];
-            }
-
-            while (low != high) {
-                const mid = Math.floor((low + high) / 2);
-                const prev = (mid - 1 + n) % n;
-                const next = (mid + 1) % n;
-
-                // Check if the current point is the tangent
-                if (
-                    crossProduct(mini_hull[mid], mini_hull[prev], Q) <= 0 &&
-                    crossProduct(mini_hull[mid], mini_hull[next], Q) <= 0
-                ) {
-                    return mini_hull[mid];
-                }
-
-                // Determine search direction
-                if (crossProduct(mini_hull[mid], mini_hull[next], Q) > 0) {
-                    low = mid + 1; // Move to the right
-                } else {
-                    high = mid; // Move to the left
-                }
-            }
-            return mini_hull[low];
-        }
-
         // Binary search to find the upper tangent
-        function findUpperTangent(): Point {
-            let low = 0, high = n - 1;
+        //let low = 0, high = n - 1;
 
-            if (
-                crossProduct(mini_hull[high], mini_hull[high - 1], Q) >= 0 &&
-                crossProduct(mini_hull[high], mini_hull[0], Q) >= 0
-            ) {
-                return mini_hull[high];
+        //while (low != high) {
+        //    const mid = Math.floor((low + high) / 2);
+        //    const prev = (mid - 1 + n) % n;
+        //    const next = (mid + 1) % n;
+
+        //    // Check if the current point is the tangent
+        //    if (
+        //        orient(Q, mini_hull[mid], mini_hull[prev]) >= 0 &&
+        //        orient(Q, mini_hull[mid], mini_hull[next]) >= 0
+        //    ) {
+        //        return mini_hull[mid];
+        //    }
+
+        //    // Determine search direction
+        //    if (orient(Q, mini_hull[mid], mini_hull[next]) < 0) {
+        //        low = mid + 1; // Move to the right
+        //    } else {
+        //        high = mid; // Move to the left
+        //    }
+        //}
+        //return mini_hull[low];
+
+
+        //let l = 0;
+        //let r = mini_hull.length;
+        //let l_before = orient(Q, mini_hull[0], mini_hull[r-1]);
+        //let l_after = orient(Q, mini_hull[0], mini_hull[1]);
+        //while(l < r){
+        //    let c = Math.floor((l + r) / 2);
+        //    let c_before = orient(Q, mini_hull[c], mini_hull[(c - 1 + mini_hull.length) % mini_hull.length]);
+        //    let c_after = orient(Q, mini_hull[c], mini_hull[(c + 1) % mini_hull.length]);
+        //    let c_side = orient(Q, mini_hull[l], mini_hull[c]);
+        //    if (c_before >= 0 && c_after >= 0){
+        //        return mini_hull[c];
+        //    }
+        //    else if(c_after < 0){//(c_side > 0) && (l_after < 0 || l_before == l_after)){//|| (c_side < 0 && c_before < 0)){
+        //        l = c;
+        //    }
+        //    else{
+        //        r = c;
+        //    }
+        //    l_before = -c_after;
+        //    l_after = orient(Q, mini_hull[l], mini_hull[(l + 1) % mini_hull.length]);
+        //}
+        //return mini_hull[l];
+
+        for(var s = 0; s < mini_hull.length; s++){
+            if(orient(Q, mini_hull[s], mini_hull[(s-1+mini_hull.length) % mini_hull.length]) >= 0 &&
+            orient(Q, mini_hull[s], mini_hull[(s+1) % mini_hull.length]) >= 0){
+                return mini_hull[s];
             }
-            if (
-                crossProduct(mini_hull[low], mini_hull[low + 1], Q) >= 0 &&
-                crossProduct(mini_hull[low], mini_hull[high], Q) >= 0
-            ) {
-                return mini_hull[low];
-            }
-
-            while (low != high) {
-                const mid = Math.floor((low + high) / 2);
-                const prev = (mid - 1 + n) % n;
-                const next = (mid + 1) % n;
-
-                // Check if the current point is the tangent
-                if (
-                    crossProduct(mini_hull[mid], mini_hull[prev], Q) >= 0 &&
-                    crossProduct(mini_hull[mid], mini_hull[next], Q) >= 0
-                ) {
-                    return mini_hull[mid];
-                }
-
-                // Determine search direction
-                if (crossProduct(mini_hull[mid], mini_hull[next], Q) < 0) {
-                    low = mid + 1; // Move to the right
-                } else {
-                    high = mid; // Move to the left
-                }
-            }
-            return mini_hull[low];
         }
-
-        const lower = findLowerTangent();
-        const upper = findUpperTangent();
-        console.log("Mini",mini_hull);
-        console.log("Q", Q);
-        console.log("lower",lower);
-        console.log("upper",upper);
-
-        return { lower, upper };
+        return mini_hull[s];
     }
 
+let test_mini_hull: Point[] = [];
+test_mini_hull.push({id:0, x:157, y:75});
+test_mini_hull.push({id:1, x:526, y:89});
+test_mini_hull.push({id:2, x:563, y:103});
+test_mini_hull.push({id:3, x:671, y:247});
+test_mini_hull.push({id:4, x:286, y:331});
+test_mini_hull.push({id:5, x:11, y:184});
+let test_q: Point = {id: 6, x:609, y:303};
+let res = findTangent(test_mini_hull, test_q);
+console.log(res);
 
