@@ -345,5 +345,12 @@ const Description = () => {
     return step;
   }
   
-  return <Container title="Step Description">{desc()}</Container>;
+  return <Container title="Step Description">
+    <div
+      style={{
+        height: "200px",
+        overflow: "hidden",
+      }}
+    >{desc()}</div>
+    </Container>;
 };
