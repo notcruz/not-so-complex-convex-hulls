@@ -16,7 +16,7 @@ export const algorithms: AlgorithmDetails[] = [
       for p, q in ordered_pairs:
         valid = true
         for point in points:
-          if(right_hand_turn(p, point, q)):
+          if(orient(p, point, q) < 0):
             valid = false
         if(valid):
           hull_edges += [Edge(p, q)]
@@ -43,7 +43,7 @@ export const algorithms: AlgorithmDetails[] = [
       mergesort_points_by_angle_to_anchor(points, p0)
       for point in points:
         while (len(stack) > 1 
-              and clockwise(stack[-2], stack[-1], point) == false):
+              and orient(stack[-2], stack[-1], point) < 0):
           stack.pop()
         stack.push(point)
       return stack`,
