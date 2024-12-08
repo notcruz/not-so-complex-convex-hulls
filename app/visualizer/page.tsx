@@ -17,7 +17,7 @@ import {
   ResumeIcon,
   TrackNextIcon,
 } from '@radix-ui/react-icons';
-import { useAtomValue } from 'jotai';
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   MouseEvent,
   MouseEventHandler,
@@ -30,6 +30,9 @@ import { clearInterval, setInterval } from 'timers';
 import { useInterval } from 'usehooks-ts';
 
 const RANDOM_POINTS_COUNT = 25;
+const placeHolderDecription = "Step through an algorithm to see described steps.";
+const sharedStepDescription = atom(placeHolderDecription);
+const sharedPauseState = atom(true);
 
 export default function Visualizer() {
   return (
@@ -80,9 +83,10 @@ const AlgorithmCode = () => {
 
 const PickYourPoints = () => {
   const [started, setStarted] = useState(false);
-  const [paused, setPaused] = useState(true);
+  const [paused, setPaused] = useAtom(sharedPauseState);
   const [points, setPoints] = useState<Point[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+  const [description, setDescription] = useAtom(sharedStepDescription);
   const [cursorPosition, setCursorPosition] = useState<{
     x: number;
     y: number;
@@ -130,6 +134,7 @@ const PickYourPoints = () => {
   const handleStart = () => {
     setStarted(true);
     setPaused(false);
+    setDescription(placeHolderDecription);
 
     play();
   };
@@ -141,6 +146,7 @@ const PickYourPoints = () => {
 
     if (algo?.hasNextStep()) {
       const result = algo?.runNextStep(points, edges);
+      setDescription(result?.description);
       setPoints(
         result?.points.map((point) => {
           return {
@@ -169,6 +175,7 @@ const PickYourPoints = () => {
     setComplete(false);
     setStarted(false);
     setPaused(true);
+    setDescription(placeHolderDecription);
     setPoints([]);
     setEdges([]);
   };
@@ -213,6 +220,7 @@ const PickYourPoints = () => {
     () => {
       if (!paused) {
         const result = algo?.runNextStep(points, edges);
+        setDescription(placeHolderDecription);
         setPoints(
           result?.points.map((point) => {
             return {
@@ -332,5 +340,10 @@ const PickYourPoints = () => {
 };
 
 const Description = () => {
-  return <Container title="Step Description"></Container>;
+  const step = useAtomValue(sharedStepDescription);
+  const desc = () => {
+    return step;
+  }
+  
+  return <Container title="Step Description">{desc()}</Container>;
 };

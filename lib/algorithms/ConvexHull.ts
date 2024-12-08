@@ -1,8 +1,11 @@
+import { algorithms } from "../config";
 import { Matrix, matrix } from "mathjs";
 import { det } from "mathjs";
 import { Point, Edge, AlgorithmStep, defaultStep } from "@/types";
 import { atan2 } from 'mathjs';
 import { LinkedQueue } from "../queue";
+
+const merge_step_desc: string = algorithms[1].steps["begin"];
 
 export class EdgeCounter{
     static count = 0;
@@ -95,7 +98,8 @@ function merge(points: Point[], edges: Edge[], anchor: Point, left: Point[], rig
                 points:points,
                 highlightEdges:[next_id],
                 edges: [{id:next_id, highlight: true, start:anchor, end: left[i]},
-                        {id:edge_counter ? edge_counter.nextNumber() : -2, highlight: true, start:anchor, end: right[j]}, ...edges]
+                        {id:edge_counter ? edge_counter.nextNumber() : -2, highlight: true, start:anchor, end: right[j]}, ...edges],
+                description: merge_step_desc
             })
 
         if (angleLeft <= angleRight) {
@@ -107,7 +111,8 @@ function merge(points: Point[], edges: Edge[], anchor: Point, left: Point[], rig
                 points:points,
                 highlightEdges:[next_id],
                 edges: [{id:next_id, highlight: true, start:anchor, end: left[i]},
-                        {id:edge_counter ? edge_counter.nextNumber() : -2, highlight: true, start:anchor, end: right[j]}, ...edges]
+                        {id:edge_counter ? edge_counter.nextNumber() : -2, highlight: true, start:anchor, end: right[j]}, ...edges],
+                description: merge_step_desc
             })
             result.push(left[i]);
             i++;
@@ -119,7 +124,8 @@ function merge(points: Point[], edges: Edge[], anchor: Point, left: Point[], rig
                 points:points,
                 highlightEdges:[next_id],
                 edges: [{id:edge_counter ? edge_counter.nextNumber() : -1, highlight: true, start:anchor, end: left[i]},
-                        {id:next_id, highlight: true, start:anchor, end: right[j]}, ...edges]
+                        {id:next_id, highlight: true, start:anchor, end: right[j]}, ...edges],
+                description: merge_step_desc
             })
             result.push(right[j]);
             j++;
@@ -135,7 +141,8 @@ function merge(points: Point[], edges: Edge[], anchor: Point, left: Point[], rig
                 highlightPoints:[left[i].id],
                 points:points,
                 highlightEdges:[next_id],
-                edges: [{id:next_id, highlight: true, start:anchor, end: left[i]}, ...edges]
+                edges: [{id:next_id, highlight: true, start:anchor, end: left[i]}, ...edges],
+                description: merge_step_desc
             })
         result.push(left[i]);
         i++;
@@ -148,7 +155,8 @@ function merge(points: Point[], edges: Edge[], anchor: Point, left: Point[], rig
                 highlightPoints:[right[j].id],
                 points:points,
                 highlightEdges:[next_id],
-                edges: [{id:next_id, highlight: true, start:anchor, end: right[j]}, ...edges]
+                edges: [{id:next_id, highlight: true, start:anchor, end: right[j]}, ...edges],
+                description: merge_step_desc
             })
         result.push(right[j]);
         j++;

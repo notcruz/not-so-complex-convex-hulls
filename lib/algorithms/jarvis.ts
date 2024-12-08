@@ -1,8 +1,9 @@
+import { algorithms } from '../config';
 import { Algorithm, Point, defaultStep, Edge } from '@/types';
 import { generate_edges_from_arr, orient } from './ConvexHull';
 
 export class JarvisMarch extends Algorithm {
-    
+    step_descriptions = algorithms[2].steps;
     constructor(points: Point[]){
         super();
         this.jarvis_march(points);
@@ -32,6 +33,14 @@ export class JarvisMarch extends Algorithm {
 
         // Upper hull
         var current_point = convex_hull[convex_hull.length-1];
+
+
+        this.step_queue.enqueue({
+                ...defaultStep,
+                highlightPoints:[right_most.id],
+                points:points,
+                description: this.step_descriptions["begin"]
+        })                                        
         while (true){
             let best_candidate: Point = left_most; // initial value
             for (i = 0; i < num_points; i++){
@@ -49,7 +58,8 @@ export class JarvisMarch extends Algorithm {
                                         highlightEdges:[-1],
                                         highlightPoints:[current_point.id, candidate.id],
                                         points: points,
-                                        edges: tempEdges
+                                        edges: tempEdges,
+                                        description: this.step_descriptions["main_loop"]
                                         })
 
                 if (orient(current_point, candidate, best_candidate) >= 0){
@@ -66,7 +76,9 @@ export class JarvisMarch extends Algorithm {
         let conv_hull_edges = generate_edges_from_arr(convex_hull);
         let connecting_edge = {id: -1, highlight:false, start: convex_hull[convex_hull.length -1], end: convex_hull[0]}
         conv_hull_edges.push(connecting_edge);
-        this.step_queue.enqueue({...defaultStep, points:points, edges:conv_hull_edges})
+        this.step_queue.enqueue({...defaultStep, points:points, edges:conv_hull_edges, 
+            description: this.step_descriptions["done"]});
+                                        
         return convex_hull;
     }
 }

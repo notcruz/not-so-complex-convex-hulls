@@ -14,6 +14,7 @@ export type AlgorithmDetails = {
 };
 
 export abstract class Algorithm {
+  abstract step_descriptions: {[step: string]: string};
   step_queue: LinkedQueue<AlgorithmStep> = new LinkedQueue();
   runNextStep(
     points: Readonly<Point[]>,
@@ -40,6 +41,8 @@ export type AlgorithmStep = {
   points: Point[];
 
   edges: Edge[];
+
+  description?: string;
 };
 
 export const defaultStep: AlgorithmStep = {
@@ -48,6 +51,7 @@ export const defaultStep: AlgorithmStep = {
   highlightEdges: [],
   points: [],
   edges: [],
+  description: "Empty step",
 };
 
 export type Entity = {

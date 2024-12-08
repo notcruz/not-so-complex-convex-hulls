@@ -1,8 +1,10 @@
+import { algorithms } from "../config.ts";
 import {Algorithm, defaultStep, Point } from "@/types"
 import { orient, generate_edges_from_arr, mergeSortByAngle} from './ConvexHull.ts';
 
 export class GrahamScan extends Algorithm {
 
+    step_descriptions = algorithms[1].steps;
     constructor(points: Point[]){
         super();
         this.graham_scan(points);
@@ -37,7 +39,8 @@ export class GrahamScan extends Algorithm {
                 highlightPoints:[points[i].id],
                 points:points,
                 highlightEdges:[-1],
-                edges: [{id:-1, highlight: true, start:lowest_leftmost, end: points[i]}]
+                edges: [{id:-1, highlight: true, start:lowest_leftmost, end: points[i]}],
+                description: this.step_descriptions["begin"]
             })
         }
 
@@ -45,7 +48,9 @@ export class GrahamScan extends Algorithm {
             highlightLines:"13",
             highlightPoints:[points[0].id], 
             points: points,
-            edges: generate_edges_from_arr(stack)})
+            edges: generate_edges_from_arr(stack),
+            description: this.step_descriptions["main_loop"]
+            })
 
         for (i = 0; i < num_points; i++) {
             let current_point = points[i];
@@ -54,13 +59,17 @@ export class GrahamScan extends Algorithm {
                 this.step_queue.enqueue({ ...defaultStep, 
                                         highlightPoints:[current_point.id, stack[stack.length-2].id, stack[stack.length-1].id], 
                                         points: points,
-                                        edges: generate_edges_from_arr(stack)})
+                                        edges: generate_edges_from_arr(stack),
+                                        description: this.step_descriptions["main_loop"]
+                                    })
             }
             else if(stack.length === 1){
                 this.step_queue.enqueue({ ...defaultStep, 
                                         highlightPoints:[current_point.id], 
                                         points: points,
-                                        edges: generate_edges_from_arr(stack)})
+                                        edges: generate_edges_from_arr(stack),
+                                        description: this.step_descriptions["main_loop"]
+                                    })
             }
             
             while (stack.length > 1 && orient(stack[stack.length-2], stack[stack.length-1], current_point) < 0){
@@ -69,13 +78,17 @@ export class GrahamScan extends Algorithm {
                     this.step_queue.enqueue({ ...defaultStep, 
                                             highlightPoints:[current_point.id, stack[stack.length-2].id, stack[stack.length-1].id], 
                                             points: points,
-                                            edges: generate_edges_from_arr(stack)})
+                                            edges: generate_edges_from_arr(stack),
+                                            description: this.step_descriptions["main_loop"]
+                                        })
                 }
                 else if(stack.length = 1){
                     this.step_queue.enqueue({ ...defaultStep, 
                                             highlightPoints:[current_point.id], 
                                             points: points,
-                                            edges: generate_edges_from_arr(stack)})
+                                            edges: generate_edges_from_arr(stack),
+                                            description: this.step_descriptions["main_loop"]
+                                        })
                 }
             }
             stack.push(points[i]);
@@ -84,6 +97,6 @@ export class GrahamScan extends Algorithm {
         let connecting_edge = {id: -1, highlight:false, start: stack[stack.length -1], end: stack[0]}
         conv_hull.push(connecting_edge);
         this.step_queue.enqueue({...defaultStep, points: points, 
-            edges: conv_hull});
+            edges: conv_hull, description: this.step_descriptions["done"]});
     }
 }

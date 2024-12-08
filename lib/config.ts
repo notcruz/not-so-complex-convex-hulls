@@ -48,7 +48,7 @@ export const algorithms: AlgorithmDetails[] = [
         stack.push(point)
       return stack`,
     resources: [],
-    steps: {"begin": "To begin graham's scan, a merge sort is performed on all of the points.\
+    steps: {"begin": "To begin this Graham's Scan, a merge sort is performed on all of the points.\
        They are ordered by their angle to the lowest point.",
       "main_loop":"Now that the points are sorted, a stack is kept to hold the convex hull.\
        Graham scan traverses through the ordered points. If the stack has at least two points in it,\
@@ -128,6 +128,7 @@ export const algorithms: AlgorithmDetails[] = [
     resources: [],
     steps: {"begin":"To begin, Chan's Algorithm will arbitrarily subsdivide the points into groups of at most m, \
       where m is a guess.",
+      "graham_done": "Here are the finished mini convex hull edges.",
     "graham": "For each subdivision of points, Graham's Scan is performed to obtain a mini convex hull.",
     "jarvis": "With a handful of mini convex hulls, Chan's Algorithm will perform a modified Jarvis March\
     on the convex hulls. The modifications being that the outer loop of Jarvis March is restricted to m\

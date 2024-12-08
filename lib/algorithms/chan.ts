@@ -1,10 +1,10 @@
+import { algorithms } from "../config.ts";
 import {Algorithm, defaultStep, Point, Edge } from "@/types"
 import { orient, generate_edges_from_arr, mergeSortByAngle, generate_edges_from_arr_closed, EdgeCounter} from './ConvexHull.ts';
-import { minifySync } from "next/dist/build/swc/index";
-import { after } from "node:test";
 
 export class ChansAlgorithm extends Algorithm {
     edge_counter: EdgeCounter;
+    step_descriptions = algorithms[3].steps;
     constructor(points: Point[]){
         super();
         this.edge_counter = new EdgeCounter(points);
@@ -15,6 +15,8 @@ export class ChansAlgorithm extends Algorithm {
     chans_algorithm(points: Point[]): void {
         const n = points.length;
 
+        this.step_queue.enqueue({...defaultStep, points: points, description: this.step_descriptions["begin"]});
+
         for (let m = 2; m <= n; m *= m){
             const subsets: Point[][] = [];
             let mini_hull_edges: Edge[] = [];
@@ -23,8 +25,10 @@ export class ChansAlgorithm extends Algorithm {
                 subsets.push(next_subset);
                 let current_edges = generate_edges_from_arr_closed(next_subset, this.edge_counter);
                 mini_hull_edges = [...mini_hull_edges, ...current_edges];
-                this.step_queue.enqueue({...defaultStep, points: points, edges:mini_hull_edges});
+                this.step_queue.enqueue({...defaultStep, points: points, edges:mini_hull_edges, description: this.step_descriptions["graham"]});
             }
+
+            this.step_queue.enqueue({...defaultStep, points: points, edges:mini_hull_edges, description: this.step_descriptions["graham_done"]});
 
             var hull_maybe = this.jarvis_helper(points, mini_hull_edges, subsets, m);
             if(hull_maybe.length != 0){
@@ -59,7 +63,9 @@ export class ChansAlgorithm extends Algorithm {
             highlightLines:"13",
             highlightPoints:[subset_points[0].id], 
             points: all_points,
-            edges: [...generate_edges_from_arr(stack), ...all_edges]})
+            edges: [...generate_edges_from_arr(stack), ...all_edges],
+            description: this.step_descriptions["graham"]
+        })
 
         for (i = 0; i < num_points; i++) {
             let current_point = subset_points[i];
@@ -68,13 +74,15 @@ export class ChansAlgorithm extends Algorithm {
                 this.step_queue.enqueue({ ...defaultStep, 
                                         highlightPoints:[current_point.id, stack[stack.length-2].id, stack[stack.length-1].id], 
                                         points: all_points,
-                                        edges: [...generate_edges_from_arr(stack), ...all_edges]})
+                                        edges: [...generate_edges_from_arr(stack), ...all_edges],
+                                        description: this.step_descriptions["graham"]})
             }
             else if(stack.length === 1){
                 this.step_queue.enqueue({ ...defaultStep, 
                                         highlightPoints:[current_point.id], 
                                         points: all_points,
-                                        edges: [...generate_edges_from_arr(stack), ...all_edges]})
+                                        edges: [...generate_edges_from_arr(stack), ...all_edges],
+                                        description: this.step_descriptions["graham"]})
             }
             
             while (stack.length > 1 && orient(stack[stack.length-2], stack[stack.length-1], current_point) < 0){
@@ -83,20 +91,23 @@ export class ChansAlgorithm extends Algorithm {
                     this.step_queue.enqueue({ ...defaultStep, 
                                             highlightPoints:[current_point.id, stack[stack.length-2].id, stack[stack.length-1].id], 
                                             points: all_points,
-                                            edges: [...generate_edges_from_arr(stack), ...all_edges]})
+                                            edges: [...generate_edges_from_arr(stack), ...all_edges],
+                                            description: this.step_descriptions["graham"]})
                 }
                 else if(stack.length = 1){
                     this.step_queue.enqueue({ ...defaultStep, 
                                             highlightPoints:[current_point.id], 
                                             points: all_points,
-                                            edges: [...generate_edges_from_arr(stack), ...all_edges]})
+                                            edges: [...generate_edges_from_arr(stack), ...all_edges],
+                                            description: this.step_descriptions["graham"]})
                 }
             }
             stack.push(subset_points[i]);
         }
         let conv_hull = generate_edges_from_arr_closed(stack);
         this.step_queue.enqueue({...defaultStep, points: all_points, 
-            edges: [...conv_hull, ...all_edges]});
+            edges: [...conv_hull, ...all_edges],
+            description: this.step_descriptions["graham"]});
         return stack;
     }
     
@@ -190,7 +201,8 @@ export class ChansAlgorithm extends Algorithm {
                                         highlightEdges:[tempID],
                                         highlightPoints:[current_point.id, candidate.id],
                                         points: all_points,
-                                        edges: [...tempEdges, ...all_edges]
+                                        edges: [...tempEdges, ...all_edges],
+                                        description: this.step_descriptions["jarvis"]
                                         })
 
                 if(orient(current_point, candidate, best_candidate) >= 0){
@@ -206,7 +218,8 @@ export class ChansAlgorithm extends Algorithm {
         }
 
         let conv_hull_edges = generate_edges_from_arr_closed(convex_hull);
-        this.step_queue.enqueue({...defaultStep, points:all_points, edges:conv_hull_edges})
+        this.step_queue.enqueue({...defaultStep, points:all_points, edges:conv_hull_edges,
+                                        description: this.step_descriptions["jarvis"]})
         if(hull_done){
             return convex_hull;
         }

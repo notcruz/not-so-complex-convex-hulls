@@ -1,9 +1,11 @@
+import { algorithms } from '../config';
 import { Algorithm, Point, Edge, defaultStep } from '@/types';
 import { orient } from './ConvexHull';
 
 
 export class NaiveAlgorithm extends Algorithm {
-    
+
+    step_descriptions = algorithms[0].steps;
     constructor(points: Point[]){
         super();
         this.naive(points);
@@ -33,7 +35,8 @@ export class NaiveAlgorithm extends Algorithm {
                         highlightPoints:[p.id, q.id, r.id],
                         highlightEdges:[-1],
                         points:points,
-                        edges: tempEdges
+                        edges: tempEdges,
+                        description: this.step_descriptions["naive"],
                     });
                     if(orient(p, r, q) >= 0){
                         valid = false;
