@@ -7,7 +7,14 @@ import {
   Dialog,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
+import {
+  TooltipContent,
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { TestAlgorithm } from "@/lib/algorithms/TestAlgorithm";
 import { ChansAlgorithm } from "@/lib/algorithms/chan";
 import { GrahamScan } from "@/lib/algorithms/graham";
@@ -212,6 +219,11 @@ const PickYourPoints = () => {
   const reset = (resetPoints = false) => {
     if (resetPoints) setPoints([]);
 
+    setPoints((points) => {
+      return points.map((point) => {
+        return { ...point, highlight: false };
+      });
+    });
     setComplete(false);
     setStarted(false);
     setPaused(true);
@@ -327,6 +339,14 @@ const PickYourPoints = () => {
           );
         })}
       </svg>
+      {!minimumMet && (
+        <>
+          <div className="text-center font-bold uppercase">
+            Please place at least 3 points.
+          </div>
+          <Separator />
+        </>
+      )}
       <div className="font-semibold flex items-center justify-between gap-x-6">
         <div>
           Cursor Position: ({cursorPosition.x}, {cursorPosition.y})
@@ -334,30 +354,68 @@ const PickYourPoints = () => {
         <div>Visualizer State: {paused ? "PAUSED" : "PLAY"}</div>
       </div>
       <div className="flex items-center justify-center gap-x-3">
-        <Button disabled={paused} onClick={() => setPaused(true)}>
-          <PauseIcon className="h-4 w-4 fill-current" />
-        </Button>
-        {started ? (
-          <Button
-            disabled={!paused || complete}
-            onClick={() => setPaused(false)}
-          >
-            <ResumeIcon className="h-4 w-4 fill-current" />
-          </Button>
-        ) : (
-          <Button onClick={start} disabled={!minimumMet || complete}>
-            <PlayIcon className="h-4 w-4 fill-current" />
-          </Button>
-        )}
-        <Button onClick={handleStep} disabled={!minimumMet || complete}>
-          <TrackNextIcon className="h-4 w-4 fill-current" />
-        </Button>
-        <Button
-          onClick={() => reset(true)}
-          disabled={started || (!started && complete)}
-        >
-          <ResetIcon className="h-4 w-4 fill-current" />
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button disabled={paused} onClick={() => setPaused(true)}>
+                <PauseIcon className="h-4 w-4 fill-current" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Pause Visualizer</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              {started ? (
+                <Button
+                  disabled={!paused || complete}
+                  onClick={() => setPaused(false)}
+                >
+                  <ResumeIcon className="h-4 w-4 fill-current" />
+                </Button>
+              ) : (
+                <Button onClick={start} disabled={!minimumMet || complete}>
+                  <PlayIcon className="h-4 w-4 fill-current" />
+                </Button>
+              )}
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{started ? "Resume Visualizer" : "Play Visualizer"}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={handleStep} disabled={!minimumMet || complete}>
+                <TrackNextIcon className="h-4 w-4 fill-current" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Next Step</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={() => reset(true)}
+                disabled={started || (!started && complete)}
+              >
+                <ResetIcon className="h-4 w-4 fill-current" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Reset/Clear Canvas</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <Button
           disabled={!paused || started || (!started && complete)}
           onClick={generateRandomPoints}
@@ -392,14 +450,7 @@ const Description = () => {
 
   return (
     <Container title="Step Description">
-      <div
-        style={{
-          height: "200px",
-          overflow: "hidden",
-        }}
-      >
-        {desc()}
-      </div>
+      <div className="min-h-32">{desc()}</div>
     </Container>
   );
 };
