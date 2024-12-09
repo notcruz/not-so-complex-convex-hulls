@@ -1,17 +1,11 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  DialogContent,
-  DialogTrigger,
-  Dialog,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import {
-  TooltipContent,
   Tooltip,
+  TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
@@ -22,7 +16,7 @@ import { JarvisMarch } from "@/lib/algorithms/jarvis";
 import { NaiveAlgorithm } from "@/lib/algorithms/naive";
 import { cn } from "@/lib/utils";
 import { algorithmAtom } from "@/state";
-import { Position, Point, Edge, Algorithm, AlgorithmStep } from "@/types";
+import { Algorithm, AlgorithmStep, Edge, Point, Position } from "@/types";
 import {
   PauseIcon,
   PlayIcon,
@@ -30,15 +24,14 @@ import {
   ResumeIcon,
   TrackNextIcon,
 } from "@radix-ui/react-icons";
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import { atom, useAtom, useAtomValue } from "jotai";
 import {
   MouseEvent,
-  MouseEventHandler,
   useEffect,
   useRef,
   useState,
 } from "react";
-import { atomOneDark, CodeBlock, dracula } from "react-code-blocks";
+import { atomOneDark, CodeBlock } from "react-code-blocks";
 import { useInterval } from "usehooks-ts";
 
 const MAX_INTERVAL = 2000;
@@ -99,7 +92,7 @@ const AlgorithmCode = () => {
 const PickYourPoints = () => {
   // atoms
   const [paused, setPaused] = useAtom(sharedPauseState);
-  const [description, setDescription] = useAtom(sharedStepDescription);
+  const [, setDescription] = useAtom(sharedStepDescription);
   const algorithm = useAtomValue(algorithmAtom);
 
   // states
@@ -307,7 +300,9 @@ const PickYourPoints = () => {
         {points.map(({ id, x, y, highlight }) => {
           const fill = highlight ? "orange" : "black";
           const stroke = highlight ? "orange" : "black";
-          var rect = svgRect.current.getBoundingClientRect();
+          const rect = getSVGRect();
+          if (!rect) return
+
           const fixed_y = rect.bottom - y - rect.top;
           return (
             <circle
@@ -323,7 +318,9 @@ const PickYourPoints = () => {
         {edges.map(({ id, highlight, start, end }) => {
           const fill = highlight ? "orange" : "black";
           const stroke = highlight ? "orange" : "black";
-          var rect = svgRect.current.getBoundingClientRect();
+          const rect = getSVGRect();
+          if (!rect) return
+
           const fixed_sy = rect.bottom - start.y - rect.top;
           const fixed_ey = rect.bottom - end.y - rect.top;
           return (
