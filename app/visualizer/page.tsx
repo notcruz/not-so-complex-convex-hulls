@@ -436,7 +436,7 @@ const PickYourPoints = () => {
             max={1000}
             value={pointsCount}
             onChange={(e) => {
-              setPointsCount(Math.min(Number.parseInt(e.target.value), 1000));
+              setPointsCount(Math.min(Math.max(Number.parseInt(e.target.value), 3), 1000));
             }}
           />
           <Button
