@@ -117,8 +117,14 @@ const PickYourPoints = () => {
   useEffect(() => {
     if (algorithm) {
       reset();
+      toast.success(`Selected ${algorithm.name}!`)
+
       if (algorithm.type === 'naive' && points.length > 50) {
         toast.warning(`Please be aware that the naive implementation is very slow. Points exceeding 50 may result in long loading times.`)
+      }
+
+      if (points.length <= 3) {
+        toast.info("To start the visualizer, please add 3 points to the canvas and press the 'Play' button!")
       }
     }
   }, [algorithm]);
@@ -176,8 +182,8 @@ const PickYourPoints = () => {
     if (!rect) return;
     if (edges.length !== 0) reset();
 
-    const count = algorithm?.type === 'naive' ? 50 : pointsCount
-    if (algorithm?.type === 'naive') {
+    const count = algorithm?.type === 'naive' ? Math.min(pointsCount, 50) : pointsCount
+    if (algorithm?.type === 'naive' && pointsCount > 50) {
       toast.warning('Due to the time complexity of the naive implementation, we have limited the number of random points to be generated to 50.')
       setPointsCount(50);
     } else {
@@ -414,7 +420,6 @@ const PickYourPoints = () => {
             <TooltipTrigger asChild>
               <Button
                 onClick={() => reset(true)}
-                disabled={started || (!started && complete)}
               >
                 <ResetIcon className="h-4 w-4 fill-current" />
               </Button>
