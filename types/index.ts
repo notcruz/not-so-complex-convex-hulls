@@ -49,7 +49,7 @@ export const defaultStep: AlgorithmStep = {
   highlightEdges: [],
   points: [],
   edges: [],
-  description: "Empty step",
+  description: "Complete.",
 };
 
 export type Position = {

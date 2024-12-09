@@ -61,7 +61,7 @@ export default function Home() {
                   <Button
                     variant={"destructive"}
                     onClick={() => {
-                      console.log(time)
+                      console.log(time);
                       stop();
                       start();
                     }}
@@ -83,7 +83,7 @@ export default function Home() {
             <CardContent
               className={cn(
                 "flex flex-col",
-                type ? "" : "min-h-full items-center justify-center"
+                type ? "" : "min-h-full items-center justify-center",
               )}
             >
               {!type ? (
@@ -122,19 +122,27 @@ export default function Home() {
                       {Math.round(time * rate)}
                     </li>
                     <li>
-                      <span className="font-semibold">Naive's Y-value: </span>{" "}
+                      <span className="font-semibold">
+                        Naive's Y-value (Blue):{" "}
+                      </span>{" "}
                       {Math.round((time * rate) ** 3)}
                     </li>
                     <li>
-                      <span className="font-semibold">Jarvis' Y-value: </span>{" "}
+                      <span className="font-semibold">
+                        Jarvis' Y-value (Orange):{" "}
+                      </span>{" "}
                       {Math.round((time * rate) ** 2)}
                     </li>
                     <li>
-                      <span className="font-semibold">Graham's Y-value: </span>{" "}
+                      <span className="font-semibold">
+                        Graham's Y-value (Pink):{" "}
+                      </span>{" "}
                       {Math.round(time * rate * Math.log2(time * rate))}
                     </li>
                     <li>
-                      <span className="font-semibold">Chan's Y-value: </span>{" "}
+                      <span className="font-semibold">
+                        Chan's Y-value (Pink):{" "}
+                      </span>{" "}
                       {Math.round(time * rate * Math.log2(time * rate))}
                     </li>
                   </ul>

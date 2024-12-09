@@ -42,14 +42,19 @@ const sharedStepDescription = atom(placeHolderDecription);
 const sharedPauseState = atom(true);
 
 export default function Visualizer() {
+  const algorithm = useAtomValue(algorithmAtom);
+
   return (
-    <div className={"flex-1 grid grid-cols-6 gap-x-6 m-6"}>
-      <AlgorithmCode />
-      <div className={"col-span-4 flex flex-col gap-y-6"}>
-        <PickYourPoints />
-        <Description />
+    <>
+      <h1 className="text-center text-lg font-bold">{algorithm?.name}</h1>
+      <div className={"flex-1 grid grid-cols-6 gap-x-6 m-6"}>
+        <AlgorithmCode />
+        <div className={"col-span-4 flex flex-col gap-y-6"}>
+          <PickYourPoints />
+          <Description />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -64,7 +69,7 @@ const Container = (props: ContainerProps) => {
     <div
       className={cn(
         "flex flex-col gap-y-3 border rounded p-6",
-        props.className
+        props.className,
       )}
     >
       <div className="text-lg font-semibold">{props.title}</div>
@@ -117,14 +122,18 @@ const PickYourPoints = () => {
   useEffect(() => {
     if (algorithm) {
       reset();
-      toast.success(`Selected ${algorithm.name}!`)
+      toast.success(`Selected ${algorithm.name}!`);
 
-      if (algorithm.type === 'naive' && points.length > 50) {
-        toast.warning(`Please be aware that the naive implementation is very slow. Points exceeding 50 may result in long loading times.`)
+      if (algorithm.type === "naive" && points.length > 50) {
+        toast.warning(
+          `Please be aware that the naive implementation is very slow. Points exceeding 50 may result in long loading times.`,
+        );
       }
 
       if (points.length <= 3) {
-        toast.info("To start the visualizer, please add 3 points to the canvas and press the 'Play' button!")
+        toast.info(
+          "To start the visualizer, please add 3 points to the canvas and press the 'Play' button!",
+        );
       }
     }
   }, [algorithm]);
@@ -182,9 +191,12 @@ const PickYourPoints = () => {
     if (!rect) return;
     if (edges.length !== 0) reset();
 
-    const count = algorithm?.type === 'naive' ? Math.min(pointsCount, 50) : pointsCount
-    if (algorithm?.type === 'naive' && pointsCount > 50) {
-      toast.warning('Due to the time complexity of the naive implementation, we have limited the number of random points to be generated to 50.')
+    const count =
+      algorithm?.type === "naive" ? Math.min(pointsCount, 50) : pointsCount;
+    if (algorithm?.type === "naive" && pointsCount > 50) {
+      toast.warning(
+        "Due to the time complexity of the naive implementation, we have limited the number of random points to be generated to 50.",
+      );
       setPointsCount(50);
     } else {
       toast.success(`Generated ${count} random points!`);
@@ -280,7 +292,7 @@ const PickYourPoints = () => {
           ...point,
           highlight: highlightPoints.includes(point.id),
         };
-      })
+      }),
     );
 
     setEdges(
@@ -289,7 +301,7 @@ const PickYourPoints = () => {
           ...edge,
           highlight: highlightEdges.includes(edge.id),
         };
-      })
+      }),
     );
 
     setComplete(!algo?.hasNextStep());
@@ -308,7 +320,7 @@ const PickYourPoints = () => {
         updateStates(result);
       }
     },
-    algo?.hasNextStep() ? interval : null
+    algo?.hasNextStep() ? interval : null,
   );
 
   return (
@@ -316,8 +328,8 @@ const PickYourPoints = () => {
       <svg
         ref={svgRect}
         className={cn(
-          "flex-1 border border-primary",
-          started ? "cursor-not-allowed" : "cursor-pointer"
+          "flex-1 border border-primary min-h-[32rem]",
+          started ? "cursor-not-allowed" : "cursor-pointer",
         )}
         onMouseMoveCapture={handleCursorNavigation}
         onClick={handlePointGeneration}
@@ -369,6 +381,7 @@ const PickYourPoints = () => {
         <div>Execution Time: {duration}ms</div>
         <div>Visualizer State: {paused ? "PAUSED" : "PLAY"}</div>
       </div>
+      <Separator />
       <div className="flex items-center justify-center gap-x-3">
         <TooltipProvider>
           <Tooltip>
@@ -418,9 +431,7 @@ const PickYourPoints = () => {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                onClick={() => reset(true)}
-              >
+              <Button onClick={() => reset(true)}>
                 <ResetIcon className="h-4 w-4 fill-current" />
               </Button>
             </TooltipTrigger>
@@ -436,7 +447,9 @@ const PickYourPoints = () => {
             max={1000}
             value={pointsCount}
             onChange={(e) => {
-              setPointsCount(Math.min(Math.max(Number.parseInt(e.target.value), 3), 1000));
+              setPointsCount(
+                Math.min(Math.max(Number.parseInt(e.target.value), 3), 1000),
+              );
             }}
           />
           <Button
@@ -474,7 +487,7 @@ const Description = () => {
 
   return (
     <Container title="Step Description">
-      <div className="min-h-32">{desc()}</div>
+      <div className="">{desc()}</div>
     </Container>
   );
 };
