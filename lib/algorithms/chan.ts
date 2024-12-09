@@ -230,68 +230,68 @@ export class ChansAlgorithm extends Algorithm {
 }
 
 function findTangent(mini_hull: Point[], Q: Point): Point {
-        console.log("mini_hull", mini_hull);
-        console.log("Q", Q);
-        let n = mini_hull.length;
-        let [a, b] = [0, n - 1];
-        if (orient(Q, mini_hull[a], mini_hull[(a - 1 + n) % n]) >= 0
-        && orient(Q, mini_hull[a], mini_hull[(a + 1) % n]) >= 0){
-            return mini_hull[a];
-        }
-        if (orient(Q, mini_hull[b], mini_hull[(b - 1 + n) % n]) >= 0
-        && orient(Q, mini_hull[b], mini_hull[(b + 1) % n]) >= 0){
-            return mini_hull[b];
-        }
-        while(true){
-            let c = Math.floor((a + b) / 2);
-            let before_c = orient(Q, mini_hull[c], mini_hull[(c - 1 + n) % n]);
-            let after_c = orient(Q, mini_hull[c], mini_hull[(c + 1) % n]);
-            if(before_c >= 0 && after_c >= 0){
-                console.log("Found tangent", mini_hull[c]);
-                return mini_hull[c];
-            }
+        //console.log("mini_hull", mini_hull);
+        //console.log("Q", Q);
+        //let n = mini_hull.length;
+        //let [a, b] = [0, n - 1];
+        //if (orient(Q, mini_hull[a], mini_hull[(a - 1 + n) % n]) >= 0
+        //&& orient(Q, mini_hull[a], mini_hull[(a + 1) % n]) >= 0){
+        //    return mini_hull[a];
+        //}
+        //if (orient(Q, mini_hull[b], mini_hull[(b - 1 + n) % n]) >= 0
+        //&& orient(Q, mini_hull[b], mini_hull[(b + 1) % n]) >= 0){
+        //    return mini_hull[b];
+        //}
+        //while(true){
+        //    let c = Math.floor((a + b) / 2);
+        //    let before_c = orient(Q, mini_hull[c], mini_hull[(c - 1 + n) % n]);
+        //    let after_c = orient(Q, mini_hull[c], mini_hull[(c + 1) % n]);
+        //    if(before_c >= 0 && after_c >= 0){
+        //        console.log("Found tangent", mini_hull[c]);
+        //        return mini_hull[c];
+        //    }
 
-            let a_on_left_of_tans = orient(Q, mini_hull[a], mini_hull[(a + 1) % n]) >= 0;
-            let a_above_c = orient(Q, mini_hull[a], mini_hull[c]) >= 0;
-            let c_on_left_of_tans = orient(Q, mini_hull[c], mini_hull[(c + 1) % n]) >= 0;
-            if(!a_on_left_of_tans){ // a on right
-                if(!a_above_c && !c_on_left_of_tans){
-                    a = c;
-                }
-                else{
-                    b = c;
-                }
-            }
-            else{ // on left
-                if(a_above_c && c_on_left_of_tans){
-                    a = c;
-                }
-                else if(!c_on_left_of_tans){ // c on right
-                    a = c;
-                }
-                else{
-                    b = c;
-                }
-            }
-        }
-        //Nuclear option
-        //for(var s = 0; s < mini_hull.length; s++){
-        //    if(orient(Q, mini_hull[s], mini_hull[(s-1+mini_hull.length) % mini_hull.length]) >= 0 &&
-        //    orient(Q, mini_hull[s], mini_hull[(s+1) % mini_hull.length]) >= 0){
-        //        return mini_hull[s];
+        //    let a_on_left_of_tans = orient(Q, mini_hull[a], mini_hull[(a + 1) % n]) >= 0;
+        //    let a_above_c = orient(Q, mini_hull[a], mini_hull[c]) >= 0;
+        //    let c_on_left_of_tans = orient(Q, mini_hull[c], mini_hull[(c + 1) % n]) >= 0;
+        //    if(!a_on_left_of_tans){ // a on right
+        //        if(!a_above_c && !c_on_left_of_tans){
+        //            a = c;
+        //        }
+        //        else{
+        //            b = c;
+        //        }
+        //    }
+        //    else{ // on left
+        //        if(a_above_c && c_on_left_of_tans){
+        //            a = c;
+        //        }
+        //        else if(!c_on_left_of_tans){ // c on right
+        //            a = c;
+        //        }
+        //        else{
+        //            b = c;
+        //        }
         //    }
         //}
-        //return mini_hull[s];
+        //Nuclear option
+        for(var s = 0; s < mini_hull.length; s++){
+            if(orient(Q, mini_hull[s], mini_hull[(s-1+mini_hull.length) % mini_hull.length]) >= 0 &&
+            orient(Q, mini_hull[s], mini_hull[(s+1) % mini_hull.length]) >= 0){
+                return mini_hull[s];
+            }
+        }
+        return mini_hull[s];
     }
 
-let test_mini_hull: Point[] = [];
-test_mini_hull.push({id:0, x:157, y:75});
-test_mini_hull.push({id:1, x:526, y:89});
-test_mini_hull.push({id:2, x:563, y:103});
-test_mini_hull.push({id:3, x:671, y:247});
-test_mini_hull.push({id:4, x:286, y:331});
-test_mini_hull.push({id:5, x:11, y:184});
-let test_q: Point = {id: 6, x:609, y:303};
-let res = findTangent(test_mini_hull, test_q);
-console.log(res);
+//let test_mini_hull: Point[] = [];
+//test_mini_hull.push({id:0, x:157, y:75});
+//test_mini_hull.push({id:1, x:526, y:89});
+//test_mini_hull.push({id:2, x:563, y:103});
+//test_mini_hull.push({id:3, x:671, y:247});
+//test_mini_hull.push({id:4, x:286, y:331});
+//test_mini_hull.push({id:5, x:11, y:184});
+//let test_q: Point = {id: 6, x:609, y:303};
+//let res = findTangent(test_mini_hull, test_q);
+//console.log(res);
 
