@@ -64,20 +64,37 @@ export default function Home() {
         </div>
         <div className="grid grid-flow-row-dense grid-cols-8">
           <Card className="col-span-5 rounded-r-none">
-            {type && <CardHeader></CardHeader>}
+            {type && <CardHeader className="text-lg font-semibold">{algorithm?.name}</CardHeader>}
             <CardContent
               className={cn(
                 "flex flex-col",
-                type ? "" : "min-h-full items-center justify-center",
+                type ? "" : "min-h-full items-center justify-center"
               )}
             >
               {!type ? (
                 <div className="text-xl">
-                  Select '<span className="font-bold">View Details</span>' on an
-                  Algorithm
+                  Select &apos;<span className="font-bold">View Details</span>
+                  &apos; on an Algorithm
                 </div>
               ) : (
-                <div></div>
+                <div>
+                  <ul className="flex flex-col gap-y-6">
+                    <li>
+                      <span className="font-semibold">Description</span>:{" "}
+                      {algorithm?.description}
+                    </li>
+                    <li>
+                      <span className="font-semibold">Time Complexity</span>:{" "}
+                      {algorithm?.complexity.time}
+                    </li>
+                    <li>
+                      <span className="font-semibold">
+                        Time Complexity Reasoning
+                      </span>
+                      : {algorithm?.complexity.reasoning}
+                    </li>
+                  </ul>
+                </div>
               )}
             </CardContent>
           </Card>
