@@ -120,7 +120,7 @@ export const algorithms: AlgorithmDetails[] = [
       the mini hulls, and O(K h log m) for the entire Jarvis March. If m is a good guess (h <= m <= h^2), then\
       this run time is O(n log h) which trumps the runtime of the Graham's Scan phase.\
       To find a good guess for m, the number of points allowed in a mini hull, a squaring strategy is adopted, \
-      restarting when and doubling m when Jarvis March does not finish executing.",
+      restarting and doubling m when Jarvis March does not finish executing.",
     },
     code:
       `def chans(points):
