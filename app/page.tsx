@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { algorithms } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import { Coordinates, Mafs, Plot, Point, Theme, useStopwatch } from "mafs";
@@ -62,9 +63,13 @@ export default function Home() {
             );
           })}
         </div>
-        <div className="grid grid-flow-row-dense grid-cols-8">
+        <div className="flex flex-col">
           <Card className="col-span-5 rounded-r-none">
-            {type && <CardHeader className="text-lg font-semibold">{algorithm?.name}</CardHeader>}
+            {type && (
+              <CardHeader className="text-lg font-semibold">
+                {algorithm?.name}
+              </CardHeader>
+            )}
             <CardContent
               className={cn(
                 "flex flex-col",
@@ -72,13 +77,13 @@ export default function Home() {
               )}
             >
               {!type ? (
-                <div className="text-xl">
+                <div className="text-xl pt-6">
                   Select &apos;<span className="font-bold">View Details</span>
                   &apos; on an Algorithm
                 </div>
               ) : (
-                <div>
-                  <ul className="flex flex-col gap-y-6">
+                <div className="flex flex-col gap-y-3">
+                  <ul className="flex flex-col gap-y-3">
                     <li>
                       <span className="font-semibold">Description</span>:{" "}
                       {algorithm?.description}
@@ -94,11 +99,34 @@ export default function Home() {
                       : {algorithm?.complexity.reasoning}
                     </li>
                   </ul>
+                  <Separator/>
+                  <ul className="flex flex-col gap-y-3">
+                    <li>
+                      For the sake of visualization, we are plotting the time complexities with respect to n, where n is the number of points.
+                      The purpose of this section is to compare each algorithm in terms of speed.
+                    </li>
+                    <li>
+                      <span className="font-semibold">Current X-value: </span> {Math.round(time * rate)}
+                    </li>
+                    <li>
+                      <span className="font-semibold">Naive's Y-value: </span> {Math.round((time * rate) ** 3)}
+                    </li>
+                    <li>
+                      <span className="font-semibold">Jarvis' Y-value: </span> {Math.round((time * rate) ** 2)}
+                    </li>
+                    <li>
+                      <span className="font-semibold">Graham's Y-value: </span> {Math.round((time * rate) * Math.log2(time * rate))}
+                    </li>
+                    <li>
+                      <span className="font-semibold">Chan's Y-value: </span> {Math.round((time * rate) * Math.log2(time * rate))}
+                    </li>
+                  </ul>
                 </div>
               )}
             </CardContent>
           </Card>
           <Mafs
+            zoom={{ min: 0.1, max: 2 }}
             viewBox={{
               y: [0, Math.min(Math.max(time * rate * 4, 5), 25)],
               x: [0, Math.min(Math.max((time * rate) / 2, 5), 15)],
@@ -107,24 +135,37 @@ export default function Home() {
           >
             <Coordinates.Cartesian
               xAxis={{
-                labels: (n) => (n % 5 == 0 ? n : ""),
+                labels: (n) => (n % 10 == 0 ? n : ""),
               }}
               yAxis={{
-                labels: (n) => (n % 5 == 0 ? n : ""),
+                labels: (n) => (n % 10 == 0 ? n : ""),
               }}
             />
+            {/* O(n) */}
             <Plot.OfX domain={[0, 500]} y={(x) => x} />
             <Point x={time * rate} y={time * rate} color={Theme.green} />
+
+            {/* O(nlogn) */}
             <Plot.OfX
               domain={[0, 500]}
               y={(x) => x * Math.log2(x)}
               color={Theme.pink}
             />
             <Point
-              x={time * rate}
-              y={time * rate * Math.log2(time * rate)}
+              x={(time * rate)}
+              y={(time * rate) * Math.log2(time * rate)}
               color={Theme.green}
             />
+
+            {/* O(n^2) */}
+            <Plot.OfX
+              domain={[0, 500]}
+              y={(x) => x ** 2}
+              color={Theme.orange}
+            />
+            <Point x={time * rate} y={(time * rate) ** 2} color={Theme.green} />
+
+            {/* O(n^3) */}
             <Plot.OfX domain={[0, 500]} y={(x) => x ** 3} color={Theme.blue} />
             <Point x={time * rate} y={(time * rate) ** 3} color={Theme.green} />
           </Mafs>
