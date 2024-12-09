@@ -4,10 +4,11 @@ export const algorithms: AlgorithmDetails[] = [
   {
     type: "naive",
     name: "Naive Algorithm",
-    description: "This is a description for the Naive algorithm.",
+    description: "The naive convex hull generating algorithm is a brute force attempt at seeing which \
+    pairs of points belong on the hull. It check every pair combination against every other point.",
     complexity: {
       time: "O(n^3)",
-      reasoning: "",
+      reasoning: "For every pair combination (n^2), check if every other point is to the left of that pair (n).",
     },
     code: 
    `def naive(points):
@@ -29,10 +30,12 @@ export const algorithms: AlgorithmDetails[] = [
   {
     type: "graham",
     name: "Graham's Scan",
-    description: "This is a description for Graham algorithm.",
+    description: "Named after Ronald Graham, Graham's Scan sorts points and analyzes them in sequence. It uses a stack to keep track\
+    of the convex hull it iteratively builds.",
     complexity: {
       time: "O(n log n)",
-      reasoning: "",
+      reasoning: "While Graham's Scan builds the hull stack in O(n) time and takes O(n log n) time to sort the points, \
+      the time complexity is still O(n log n) because time to sort dominates time to build the stack.",
     },
     code: 
    `def graham_scan(points):
@@ -61,10 +64,14 @@ export const algorithms: AlgorithmDetails[] = [
   {
     type: "jarvis",
     name: "Jarvis March",
-    description: "This is a description for Jarvis algorithm.",
+    description: "Named after R.A. Jarvis and sometimes called the \'Gift-Wrapping Algorithm\', \
+    Jarvis March is an output-sensitive algorithm that loops through unordered points to \
+    find a point that minimizes turning angle from the current point.",
     complexity: {
       time: "O(nh)",
-      reasoning: "",
+      reasoning: "The current point in the outer loop only changes when the next point on the hull\
+      is found and only stops when the convex hull is complete (O(h)). The inner loop checks the \
+      current point against all other points (O(n)).",
     },
     code:
    `def jarvis_march(points):
@@ -99,10 +106,18 @@ export const algorithms: AlgorithmDetails[] = [
   {
     type: "chans",
     name: "Chan's Algorithm",
-    description: "This is a description for Chans algorithm.",
+    description: "Named after Timithy M. Chan, Chan's Algorithm is an output-sensitive algorithm that combines Graham's \
+    Scan and a modified version of Jarvis March. It chooses to subdivide points into groups of at most some guess m, compute mini convex hulls for each grouping, \
+    and then run a type of Jarvis March on all the mini hulls.",
     complexity: {
       time: "O (n log h)",
-      reasoning: "",
+      reasoning: "Performing Graham's Scan on all K subgroupings of m points takes K * O(m log m) = O(n log m).\
+      Performing Jarvis March is simpler than normal, only allowing m iterations in the outer loop and using\
+      binary search to find the upper tangent of a given mini hull in O(log m) time, O(K log m) for all\
+      the mini hulls, and O(K h log m) for the entire Jarvis March. If m is a good guess (h <= m <= h^2), then\
+      this run time is O(n log h) which trumps the runtime of the Graham's Scan phase.\
+      To find a good guess for m, the number of points allowed in a mini hull, a squaring strategy is adopted, \
+      restarting when and doubling m when Jarvis March does not finish executing.",
     },
     code: 
    `def chans(points):
