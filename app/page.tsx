@@ -18,7 +18,7 @@ const rate = 0.75;
 
 export default function Home() {
   const [type, setType] = useState<string>();
-  const { time, start } = useStopwatch();
+  const { time, start, stop } = useStopwatch();
 
   useEffect(() => start(), [start]);
 
@@ -57,6 +57,16 @@ export default function Home() {
                     <a href={`/visualizer?type=${algorithm.type}`}>
                       Test Algorithm
                     </a>
+                  </Button>
+                  <Button
+                    variant={"destructive"}
+                    onClick={() => {
+                      console.log(time)
+                      stop();
+                      start();
+                    }}
+                  >
+                    Reset Graph
                   </Button>
                 </CardFooter>
               </Card>
@@ -99,26 +109,33 @@ export default function Home() {
                       : {algorithm?.complexity.reasoning}
                     </li>
                   </ul>
-                  <Separator/>
+                  <Separator />
                   <ul className="flex flex-col gap-y-3">
                     <li>
-                      For the sake of visualization, we are plotting the time complexities with respect to n, where n is the number of points.
-                      The purpose of this section is to compare each algorithm in terms of speed.
+                      For the sake of visualization, we are plotting the time
+                      complexities with respect to n, where n is the number of
+                      points. The purpose of this section is to compare each
+                      algorithm in terms of speed.
                     </li>
                     <li>
-                      <span className="font-semibold">Current X-value: </span> {Math.round(time * rate)}
+                      <span className="font-semibold">Current X-value: </span>{" "}
+                      {Math.round(time * rate)}
                     </li>
                     <li>
-                      <span className="font-semibold">Naive's Y-value: </span> {Math.round((time * rate) ** 3)}
+                      <span className="font-semibold">Naive's Y-value: </span>{" "}
+                      {Math.round((time * rate) ** 3)}
                     </li>
                     <li>
-                      <span className="font-semibold">Jarvis' Y-value: </span> {Math.round((time * rate) ** 2)}
+                      <span className="font-semibold">Jarvis' Y-value: </span>{" "}
+                      {Math.round((time * rate) ** 2)}
                     </li>
                     <li>
-                      <span className="font-semibold">Graham's Y-value: </span> {Math.round((time * rate) * Math.log2(time * rate))}
+                      <span className="font-semibold">Graham's Y-value: </span>{" "}
+                      {Math.round(time * rate * Math.log2(time * rate))}
                     </li>
                     <li>
-                      <span className="font-semibold">Chan's Y-value: </span> {Math.round((time * rate) * Math.log2(time * rate))}
+                      <span className="font-semibold">Chan's Y-value: </span>{" "}
+                      {Math.round(time * rate * Math.log2(time * rate))}
                     </li>
                   </ul>
                 </div>
@@ -152,8 +169,8 @@ export default function Home() {
               color={Theme.pink}
             />
             <Point
-              x={(time * rate)}
-              y={(time * rate) * Math.log2(time * rate)}
+              x={time * rate}
+              y={time * rate * Math.log2(time * rate)}
               color={Theme.green}
             />
 

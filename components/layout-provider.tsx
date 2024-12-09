@@ -15,8 +15,7 @@ export default function LayoutProvider({ children }: LayoutProviderProps) {
     >
       <ThemeProvider
         attribute="class"
-        defaultTheme="system"
-        enableSystem
+        defaultTheme="light"
         disableTransitionOnChange
       >
         <Provider>
