@@ -1,6 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import {
+  DialogContent,
+  DialogTrigger,
+  Dialog,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { TestAlgorithm } from "@/lib/algorithms/TestAlgorithm";
 import { ChansAlgorithm } from "@/lib/algorithms/chan";
@@ -9,7 +15,7 @@ import { JarvisMarch } from "@/lib/algorithms/jarvis";
 import { NaiveAlgorithm } from "@/lib/algorithms/naive";
 import { cn } from "@/lib/utils";
 import { algorithmAtom } from "@/state";
-import { Point, Edge, Algorithm } from "@/types";
+import { Position, Point, Edge, Algorithm, AlgorithmStep } from "@/types";
 import {
   PauseIcon,
   PlayIcon,
@@ -26,9 +32,10 @@ import {
   useState,
 } from "react";
 import { atomOneDark, CodeBlock, dracula } from "react-code-blocks";
-import { clearInterval, setInterval } from "timers";
 import { useInterval } from "usehooks-ts";
 
+const MAX_INTERVAL = 2000;
+const MIN_INTERVAL = 10;
 const RANDOM_POINTS_COUNT = 25;
 const placeHolderDecription =
   "Step through an algorithm to see described steps.";
@@ -83,23 +90,27 @@ const AlgorithmCode = () => {
 };
 
 const PickYourPoints = () => {
-  const [started, setStarted] = useState(false);
+  // atoms
   const [paused, setPaused] = useAtom(sharedPauseState);
+  const [description, setDescription] = useAtom(sharedStepDescription);
+  const algorithm = useAtomValue(algorithmAtom);
+
+  // states
+  const [started, setStarted] = useState(false);
+  const [complete, setComplete] = useState(false);
+  const [interval, setInterval] = useState(1000);
+  const [minimumMet, setMinimumMet] = useState(false);
+
   const [points, setPoints] = useState<Point[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
-  const [description, setDescription] = useAtom(sharedStepDescription);
-  const [cursorPosition, setCursorPosition] = useState<{
-    x: number;
-    y: number;
-  }>({ x: 0, y: 0 });
-
-  const [interval, setInterval] = useState(1000);
-  const svgRect = useRef(null);
-  const intervalRef = useRef(null);
-
-  const algorithm = useAtomValue(algorithmAtom);
+  const [cursorPosition, setCursorPosition] = useState<Position>({
+    x: 0,
+    y: 0,
+  });
   const [algo, setAlgo] = useState<Algorithm>();
-  const [complete, setComplete] = useState(false);
+
+  // refs
+  const svgRect = useRef<SVGElement>();
 
   // reset board whenever the algorithm is updated
   useEffect(() => {
@@ -108,87 +119,61 @@ const PickYourPoints = () => {
     }
   }, [algorithm]);
 
+  // enforce 3 data points minimum
+  useEffect(() => {
+    if (points.length >= 3) {
+      setMinimumMet(true);
+    } else {
+      setMinimumMet(false);
+    }
+  }, [points]);
+
+  // update states when complete
+  useEffect(() => {
+    if (complete) {
+      setStarted(false);
+      setPaused(true);
+      setComplete(false);
+    }
+  }, [complete]);
+
+  // create a point
   const createPoint = (x: number, y: number) => {
     setPoints([...points, { id: points.length + 1, x, y }]);
   };
 
-  const createEdge = (start: Point, end: Point) => {
-    setEdges([...edges, { id: edges.length + 1, start, end }]);
+  const getSVGRect = (): DOMRect | undefined => {
+    if (!svgRect.current) return;
+    return svgRect.current.getBoundingClientRect();
   };
 
+  // handler for clicking canvas
   const handlePointGeneration = (e: MouseEvent<SVGElement>) => {
-    if (started) return;
-    const target = e.target as SVGElement;
-    const rect = svgRect.current.getBoundingClientRect();
+    const rect = getSVGRect();
+    if (started || !rect) return;
+    if (edges.length !== 0) reset();
+
     createPoint(e.clientX - rect.left, rect.bottom - e.clientY);
   };
 
+  // handler for pointer on canvas
   const handleCursorNavigation = (e: MouseEvent<SVGElement>) => {
-    if (!svgRect) return;
+    const rect = getSVGRect();
+    if (!rect) return;
 
-    const rect = svgRect.current.getBoundingClientRect();
     const x = Math.ceil(Math.max(e.clientX - rect.left, 0));
     const y = Math.ceil(Math.max(rect.bottom - e.clientY, 0));
     setCursorPosition({ x, y });
   };
 
-  const handleStart = () => {
-    setStarted(true);
-    setPaused(false);
-    setDescription(placeHolderDecription);
-
-    play();
-  };
-
-  const handleStep = () => {
-    if (!started) {
-      handleStart();
-    }
-
-    if (algo?.hasNextStep()) {
-      const result = algo?.runNextStep(points, edges);
-      setDescription(result?.description);
-      setPoints(
-        result?.points.map((point) => {
-          return {
-            ...point,
-            highlight: result.highlightPoints.includes(point.id),
-          };
-        }),
-      );
-
-      setEdges(
-        result?.edges.map((edge) => {
-          return {
-            ...edge,
-            highlight: result.highlightEdges.includes(edge.id),
-          };
-        }),
-      );
-
-      setComplete(!algo.hasNextStep());
-    }
-
-    setPaused(true);
-  };
-
-  const reset = () => {
-    while (algo?.hasNextStep()) {
-      // throaway everything left
-      algo.runNextStep([], []);
-    }
-
-    setComplete(false);
-    setStarted(false);
-    setPaused(true);
-    setDescription(placeHolderDecription);
-    setEdges([]);
-    setAlgo(undefined);
-  };
-
+  // randomly generate a set of points
   const generateRandomPoints = () => {
+    const rect = getSVGRect();
+    if (!rect) return;
+    if (edges.length !== 0) reset();
+
     const newPoints = [];
-    const { height, width } = svgRect.current.getBoundingClientRect();
+    const { height, width } = rect;
     for (let i = 0; i < RANDOM_POINTS_COUNT; i++) {
       const x = Math.floor(Math.random() * width);
       const y = Math.floor(Math.random() * height);
@@ -198,54 +183,99 @@ const PickYourPoints = () => {
     setPoints(newPoints);
   };
 
-  const play = () => {
-    var testAlgorithm: Algorithm | undefined = undefined;
+  // update states once visualizer starts
+  const start = () => {
+    setStarted(true);
+    setPaused(false);
+    setDescription(placeHolderDecription);
+
     switch (algorithm?.type) {
       case "graham":
-        testAlgorithm = new GrahamScan(points);
+        setAlgo(new GrahamScan(points));
         break;
       case "naive":
-        testAlgorithm = new NaiveAlgorithm(points);
+        setAlgo(new NaiveAlgorithm(points));
         break;
       case "jarvis":
-        testAlgorithm = new JarvisMarch(points);
+        setAlgo(new JarvisMarch(points));
         break;
       case "chans":
-        testAlgorithm = new ChansAlgorithm(points);
+        setAlgo(new ChansAlgorithm(points));
         break;
       default:
-        testAlgorithm = new TestAlgorithm();
+        setAlgo(new TestAlgorithm());
         break;
     }
-    setAlgo(testAlgorithm);
   };
 
-  const pause = () => {};
+  // reset visualizer states
+  const reset = (resetPoints = false) => {
+    if (resetPoints) setPoints([]);
 
+    setComplete(false);
+    setStarted(false);
+    setPaused(true);
+    setDescription(placeHolderDecription);
+    setEdges([]);
+    setAlgo(undefined);
+  };
+
+  // handler for an algorithm step
+  const handleStep = () => {
+    if (!started) start();
+    if (!algo) return;
+
+    if (algo.hasNextStep()) {
+      const result = algo.runNextStep();
+      if (!result) return;
+
+      updateStates(result);
+    }
+
+    setPaused(true);
+  };
+
+  // update states from algorithm step
+  const updateStates = ({
+    description,
+    points,
+    highlightPoints,
+    edges,
+    highlightEdges,
+  }: AlgorithmStep) => {
+    setDescription(description);
+    setPoints(
+      points.map((point) => {
+        return {
+          ...point,
+          highlight: highlightPoints.includes(point.id),
+        };
+      }),
+    );
+
+    setEdges(
+      edges.map((edge) => {
+        return {
+          ...edge,
+          highlight: highlightEdges.includes(edge.id),
+        };
+      }),
+    );
+
+    setComplete(!algo?.hasNextStep());
+  };
+
+  // continous interval for running an algorithm
   useInterval(
     () => {
+      if (!algo) return;
+
       if (!paused) {
-        const result = algo?.runNextStep(points, edges);
+        const result = algo.runNextStep();
+        if (!result) return;
+
         setDescription(placeHolderDecription);
-        setPoints(
-          result?.points.map((point) => {
-            return {
-              ...point,
-              highlight: result.highlightPoints.includes(point.id),
-            };
-          }),
-        );
-
-        setEdges(
-          result?.edges.map((edge) => {
-            return {
-              ...edge,
-              highlight: result.highlightEdges.includes(edge.id),
-            };
-          }),
-        );
-
-        setComplete(!algo?.hasNextStep());
+        updateStates(result);
       }
     },
     algo?.hasNextStep() ? interval : null,
@@ -297,8 +327,11 @@ const PickYourPoints = () => {
           );
         })}
       </svg>
-      <div>
-        Cursor Position: ({cursorPosition.x}, {cursorPosition.y})
+      <div className="font-semibold flex items-center justify-between gap-x-6">
+        <div>
+          Cursor Position: ({cursorPosition.x}, {cursorPosition.y})
+        </div>
+        <div>Visualizer State: {paused ? "PAUSED" : "PLAY"}</div>
       </div>
       <div className="flex items-center justify-center gap-x-3">
         <Button disabled={paused} onClick={() => setPaused(true)}>
@@ -312,34 +345,40 @@ const PickYourPoints = () => {
             <ResumeIcon className="h-4 w-4 fill-current" />
           </Button>
         ) : (
-          <Button
-            onClick={handleStart}
-            disabled={points.length === 0 || complete}
-          >
+          <Button onClick={start} disabled={!minimumMet || complete}>
             <PlayIcon className="h-4 w-4 fill-current" />
           </Button>
         )}
-        <Button onClick={handleStep} disabled={points.length === 0 || complete}>
+        <Button onClick={handleStep} disabled={!minimumMet || complete}>
           <TrackNextIcon className="h-4 w-4 fill-current" />
         </Button>
-        <Button onClick={reset} disabled={points.length === 0}>
+        <Button
+          onClick={() => reset(true)}
+          disabled={started || (!started && complete)}
+        >
           <ResetIcon className="h-4 w-4 fill-current" />
         </Button>
-        <Button disabled={!paused} onClick={generateRandomPoints}>
+        <Button
+          disabled={!paused || started || (!started && complete)}
+          onClick={generateRandomPoints}
+        >
           Generate Random Points
         </Button>
       </div>
-      <div className="flex items-center justify-center mt-3">
+      <div className="flex flex-col items-center justify-center gap-y-3 mt-3">
         <Slider
           className="max-w-96"
           defaultValue={[1000]}
-          min={10}
-          max={1000}
+          min={MIN_INTERVAL}
+          max={MAX_INTERVAL}
           step={50}
-          onValueCommit={(e) => {
+          onValueChange={(e) => {
             setInterval(e[0]);
           }}
         />
+        <div className="font-semibold">
+          Algorithm Step Duration: {interval / 1000}s
+        </div>
       </div>
     </Container>
   );
