@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { algorithms } from "@/lib/config";
-import { algorithmAtom } from "@/state";
-import { useAtom } from "jotai";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-import { Button } from "./ui/button";
+import { algorithms } from '@/lib/config';
+import { algorithmAtom } from '@/state';
+import { useAtom } from 'jotai';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import { Button } from './ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from './ui/dropdown-menu';
 
 const Navbar = () => {
   const [algorithm, setAlgorithm] = useAtom(algorithmAtom);
@@ -22,19 +22,19 @@ const Navbar = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const onVisualizer = pathname === "/visualizer";
+  const onVisualizer = pathname === '/visualizer';
 
   useEffect(() => {
     if (onVisualizer) {
-      const type = searchParams.get("type");
+      const type = searchParams.get('type');
       const result = algorithms.find((algorithm) => algorithm.type === type);
 
       // if no type is specified or the specified type is not supported
       if (!type || !result) {
         // default to naive
         const params = new URLSearchParams(searchParams.toString());
-        params.set("type", "naive");
-        router.push(pathname + "?" + params.toString());
+        params.set('type', 'naive');
+        router.push(pathname + '?' + params.toString());
       } else {
         // update algorithm atom
         setAlgorithm(result);
@@ -49,8 +49,8 @@ const Navbar = () => {
     if (result) {
       // update params
       const params = new URLSearchParams(searchParams.toString());
-      params.set("type", result.type);
-      router.push(pathname + "?" + params.toString());
+      params.set('type', result.type);
+      router.push(pathname + '?' + params.toString());
 
       // update algorithm atom
       setAlgorithm(result);
@@ -58,19 +58,19 @@ const Navbar = () => {
   };
 
   return (
-    <nav className={"flex items-center justify-between mx-64 my-8"}>
-      <Button asChild variant={"ghost"}>
-        <a href={"/"}>Home</a>
+    <nav className={'flex items-center justify-between mx-64 my-8'}>
+      <Button asChild variant={'ghost'}>
+        <a href={'/'}>Home</a>
       </Button>
       {!onVisualizer && (
         <Button asChild>
-          <a href={"/visualizer"}>Visualizer</a>
+          <a href={'/visualizer'}>Visualizer</a>
         </Button>
       )}
       {onVisualizer && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button className="w-48" variant={"outline"}>
+            <Button className="w-48" variant={'outline'}>
               Picker
             </Button>
           </DropdownMenuTrigger>

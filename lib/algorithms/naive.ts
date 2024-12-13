@@ -1,77 +1,66 @@
-import { Point } from './ConvexHull.ts';
-import { atan2 } from 'mathjs';
+import { algorithms } from '../config';
+import { Algorithm, Point, Edge, defaultStep } from '@/types';
+import { orient } from './ConvexHull';
 
-function slope(p1:Point, p2:Point): number {
-    // Return the slope of p1->p2
-    if (p1[0] <= p2[0]){
-        return atan2((p2[1] - p1[1]),(p2[0] - p1[0]));
+export class NaiveAlgorithm extends Algorithm {
+  step_descriptions = algorithms[0].steps;
+  constructor(points: Point[]) {
+    super();
+    this.naive(points);
+  }
+
+  naive(points: Point[]): void {
+    // Perform Brute Force Convex Hull algorithm on a list of points.
+    points.sort((a, b) => a.x - b.x);
+
+    const ch_edges: Edge[] = [];
+    const all_ordered_pairs: [Point, Point][] = cartesianProduct<Point>(points);
+
+    for (let i = 0; i < all_ordered_pairs.length; i++) {
+      const current_pair = all_ordered_pairs[i];
+      const p: Point = current_pair[0];
+      const q: Point = current_pair[1];
+      let valid = true;
+
+      for (let j = 0; j < points.length; j++) {
+        const r: Point = points[j];
+
+        if (r != p && r != q) {
+          const tempEdges = [...ch_edges];
+          tempEdges.push({ id: -1, start: p, end: q });
+          this.step_queue.enqueue({
+            ...defaultStep,
+            highlightPoints: [p.id, q.id, r.id],
+            highlightEdges: [-1],
+            points: points,
+            edges: tempEdges,
+            description: this.step_descriptions['naive'],
+          });
+          if (orient(p, r, q) >= 0) {
+            valid = false;
+          }
+        }
+      }
+      if (valid) {
+        ch_edges.push({ id: ch_edges.length + 1, start: p, end: q });
+      }
     }
-    else{
-        return slope(p2, p1);
-    }
+    this.step_queue.enqueue({
+      ...defaultStep,
+      points: points,
+      edges: ch_edges,
+    });
+  }
 }
 
-function naive(points: Point[]): Point[] {
-    // Perform Brute Force Convex Hull algorithm on a list of points.
-    var right_most = points[0];
-    var left_most = points[0];
+function cartesianProduct<T>(array: T[]): [T, T][] {
+  const result: [T, T][] = [];
 
-    var num_points = points.length
-
-    // Find the leftmost and rightmost points of the set
-    for (var i = 0; i < num_points; i++) {
-        let [curr_x, curr_y] = points[i];
-        if (curr_x < left_most[0]){
-            left_most = points[i];
-        }
-        if (curr_x > right_most[0]){
-            right_most = points[i];
-        }
+  for (const a of array) {
+    for (const b of array) {
+      result.push([a, b]);
     }
+  }
 
-    var convex_hull = [right_most];
-
-    // Upper hull
-    var current_point = convex_hull[-1];
-    while (current_point != left_most){
-        let min_slope = Number.POSITIVE_INFINITY;
-        let best_candidate: Point = [Number.POSITIVE_INFINITY, 0]; // dummy value
-        for (i = 0; i < num_points; i++){
-            let candidate = points[i];
-            if ((points.indexOf(candidate) > -1) || candidate[0] > current_point[0]){
-                continue;
-            }
-            let test_slope = slope(candidate, current_point);
-            if (test_slope < min_slope){
-                best_candidate = candidate;
-                min_slope = test_slope;
-            }
-        }
-        convex_hull.push(best_candidate)
-        current_point = best_candidate;
-    }
-
-    // Lower hull
-    while (true){
-        let min_slope = Number.POSITIVE_INFINITY;
-        let best_candidate: Point = [Number.POSITIVE_INFINITY, 0]; // dummy value
-        for (i = 0; i < num_points; i++){
-            let candidate = points[i];
-            if ((points.indexOf(candidate) > -1) && candidate != right_most 
-                || candidate[0] < current_point[0]){
-                continue;
-            }
-            let test_slope = slope(candidate, current_point);
-            if (test_slope < min_slope){
-                best_candidate = candidate;
-                min_slope = test_slope;
-            }
-        }
-        if (best_candidate == right_most){
-            break;
-        }
-        convex_hull.push(best_candidate)
-        current_point = best_candidate;
-    }
-    return convex_hull;
+  return result;
 }
