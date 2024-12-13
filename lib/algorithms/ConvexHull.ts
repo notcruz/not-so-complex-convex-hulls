@@ -1,9 +1,9 @@
-import { AlgorithmStep, defaultStep, Edge, Point } from "@/types";
-import { atan2, det, Matrix, matrix } from "mathjs";
-import { algorithms } from "../config";
-import { LinkedQueue } from "../queue";
+import { AlgorithmStep, defaultStep, Edge, Point } from '@/types';
+import { atan2, det, Matrix, matrix } from 'mathjs';
+import { algorithms } from '../config';
+import { LinkedQueue } from '../queue';
 
-const merge_step_desc: string = algorithms[1].steps["begin"];
+const merge_step_desc: string = algorithms[1].steps['begin'];
 
 export class EdgeCounter {
   static count = 0;
@@ -35,7 +35,7 @@ export function generate_edges_from_arr(
   arr: Point[],
   edge_counter?: EdgeCounter
 ): Edge[] {
-  let edges: Edge[] = [];
+  const edges: Edge[] = [];
 
   for (let i = 1; i < arr.length; i++) {
     const next_id = edge_counter ? edge_counter.nextNumber() : i;
@@ -54,7 +54,7 @@ export function generate_edges_from_arr_closed(
   arr: Point[],
   edge_counter?: EdgeCounter
 ): Edge[] {
-  let edges: Edge[] = generate_edges_from_arr(arr);
+  const edges: Edge[] = generate_edges_from_arr(arr);
 
   const connecting_edge: Edge = {
     id: edge_counter ? edge_counter.nextNumber() : arr.length + 1,
@@ -159,7 +159,7 @@ function merge(
     });
 
     if (angleLeft <= angleRight) {
-        const next_id = edge_counter ? edge_counter.nextNumber() : -1;
+      const next_id = edge_counter ? edge_counter.nextNumber() : -1;
       step_queue.enqueue({
         ...defaultStep,
         highlightPoints: [left[i].id, right[j].id],

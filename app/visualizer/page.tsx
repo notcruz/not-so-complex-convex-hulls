@@ -1,43 +1,39 @@
-"use client";
+'use client';
 
-import { AlertCircle } from "lucide-react";
-
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { Slider } from '@/components/ui/slider';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { TestAlgorithm } from "@/lib/algorithms/TestAlgorithm";
-import { ChansAlgorithm } from "@/lib/algorithms/chan";
-import { GrahamScan } from "@/lib/algorithms/graham";
-import { JarvisMarch } from "@/lib/algorithms/jarvis";
-import { NaiveAlgorithm } from "@/lib/algorithms/naive";
-import { cn } from "@/lib/utils";
-import { algorithmAtom } from "@/state";
-import { Algorithm, AlgorithmStep, Edge, Point, Position } from "@/types";
+} from '@/components/ui/tooltip';
+import { ChansAlgorithm } from '@/lib/algorithms/chan';
+import { GrahamScan } from '@/lib/algorithms/graham';
+import { JarvisMarch } from '@/lib/algorithms/jarvis';
+import { NaiveAlgorithm } from '@/lib/algorithms/naive';
+import { cn } from '@/lib/utils';
+import { algorithmAtom } from '@/state';
+import { Algorithm, AlgorithmStep, Edge, Point, Position } from '@/types';
 import {
   PauseIcon,
   PlayIcon,
   ResetIcon,
   ResumeIcon,
   TrackNextIcon,
-} from "@radix-ui/react-icons";
-import { atom, useAtom, useAtomValue } from "jotai";
-import { MouseEvent, useEffect, useRef, useState } from "react";
-import { atomOneDark, CodeBlock } from "react-code-blocks";
-import { useInterval } from "usehooks-ts";
-import { toast } from "sonner";
+} from '@radix-ui/react-icons';
+import { atom, useAtom, useAtomValue } from 'jotai';
+import { MouseEvent, Suspense, useEffect, useRef, useState } from 'react';
+import { atomOneDark, CodeBlock } from 'react-code-blocks';
+import { toast } from 'sonner';
+import { useInterval } from 'usehooks-ts';
 
 const MAX_INTERVAL = 2000;
 const MIN_INTERVAL = 10;
 const placeHolderDecription =
-  "Step through an algorithm to see described steps.";
+  'Step through an algorithm to see described steps.';
 const sharedStepDescription = atom(placeHolderDecription);
 const sharedPauseState = atom(true);
 
@@ -47,9 +43,9 @@ export default function Visualizer() {
   return (
     <>
       <h1 className="text-center text-lg font-bold">{algorithm?.name}</h1>
-      <div className={"flex-1 grid grid-cols-6 gap-x-6 m-6"}>
+      <div className={'flex-1 grid grid-cols-6 gap-x-6 m-6'}>
         <AlgorithmCode />
-        <div className={"col-span-4 flex flex-col gap-y-6"}>
+        <div className={'col-span-4 flex flex-col gap-y-6'}>
           <PickYourPoints />
           <Description />
         </div>
@@ -68,8 +64,8 @@ const Container = (props: ContainerProps) => {
   return (
     <div
       className={cn(
-        "flex flex-col gap-y-3 border rounded p-6",
-        props.className,
+        'flex flex-col gap-y-3 border rounded p-6',
+        props.className
       )}
     >
       <div className="text-lg font-semibold">{props.title}</div>
@@ -85,7 +81,7 @@ const AlgorithmCode = () => {
     <Container title="Code Block" className="col-span-2">
       <CodeBlock
         text={algorithm?.code}
-        language={"python"}
+        language={'python'}
         theme={atomOneDark}
         showLineNumbers
       />
@@ -116,7 +112,7 @@ const PickYourPoints = () => {
   const [algo, setAlgo] = useState<Algorithm>();
 
   // refs
-  const svgRect = useRef<SVGElement>();
+  const svgRect = useRef<SVGSVGElement>(null);
 
   // reset board whenever the algorithm is updated
   useEffect(() => {
@@ -124,15 +120,15 @@ const PickYourPoints = () => {
       reset();
       toast.success(`Selected ${algorithm.name}!`);
 
-      if (algorithm.type === "naive" && points.length > 50) {
+      if (algorithm.type === 'naive' && points.length > 50) {
         toast.warning(
-          `Please be aware that the naive implementation is very slow. Points exceeding 50 may result in long loading times.`,
+          `Please be aware that the naive implementation is very slow. Points exceeding 50 may result in long loading times.`
         );
       }
 
       if (points.length <= 3) {
         toast.info(
-          "To start the visualizer, please add 3 points to the canvas and press the 'Play' button!",
+          "To start the visualizer, please add 3 points to the canvas and press the 'Play' button!"
         );
       }
     }
@@ -192,10 +188,10 @@ const PickYourPoints = () => {
     if (edges.length !== 0) reset();
 
     const count =
-      algorithm?.type === "naive" ? Math.min(pointsCount, 50) : pointsCount;
-    if (algorithm?.type === "naive" && pointsCount > 50) {
+      algorithm?.type === 'naive' ? Math.min(pointsCount, 50) : pointsCount;
+    if (algorithm?.type === 'naive' && pointsCount > 50) {
       toast.warning(
-        "Due to the time complexity of the naive implementation, we have limited the number of random points to be generated to 50.",
+        'Due to the time complexity of the naive implementation, we have limited the number of random points to be generated to 50.'
       );
       setPointsCount(50);
     } else {
@@ -222,20 +218,20 @@ const PickYourPoints = () => {
     const start = Date.now();
 
     switch (algorithm?.type) {
-      case "graham":
+      case 'graham':
         setAlgo(new GrahamScan(points));
         break;
-      case "naive":
+      case 'naive':
         setAlgo(new NaiveAlgorithm(points));
         break;
-      case "jarvis":
+      case 'jarvis':
         setAlgo(new JarvisMarch(points));
         break;
-      case "chans":
+      case 'chans':
         setAlgo(new ChansAlgorithm(points));
         break;
       default:
-        setAlgo(new TestAlgorithm());
+        // setAlgo(new TestAlgorithm());
         break;
     }
 
@@ -292,7 +288,7 @@ const PickYourPoints = () => {
           ...point,
           highlight: highlightPoints.includes(point.id),
         };
-      }),
+      })
     );
 
     setEdges(
@@ -301,7 +297,7 @@ const PickYourPoints = () => {
           ...edge,
           highlight: highlightEdges.includes(edge.id),
         };
-      }),
+      })
     );
 
     setComplete(!algo?.hasNextStep());
@@ -320,162 +316,164 @@ const PickYourPoints = () => {
         updateStates(result);
       }
     },
-    algo?.hasNextStep() ? interval : null,
+    algo?.hasNextStep() ? interval : null
   );
 
   return (
-    <Container title="Pick Your Points" className="flex-1">
-      <svg
-        ref={svgRect}
-        className={cn(
-          "flex-1 border border-primary min-h-[32rem]",
-          started ? "cursor-not-allowed" : "cursor-pointer",
-        )}
-        onMouseMoveCapture={handleCursorNavigation}
-        onClick={handlePointGeneration}
-      >
-        {points.map(({ id, x, y, highlight }) => {
-          const fill = highlight ? "orange" : "black";
-          const stroke = highlight ? "orange" : "black";
-          const rect = getSVGRect();
-          if (!rect) return;
+    <Suspense>
+      <Container title="Pick Your Points" className="flex-1">
+        <svg
+          ref={svgRect}
+          className={cn(
+            'flex-1 border border-primary min-h-[32rem]',
+            started ? 'cursor-not-allowed' : 'cursor-pointer'
+          )}
+          onMouseMoveCapture={handleCursorNavigation}
+          onClick={handlePointGeneration}
+        >
+          {points.map(({ id, x, y, highlight }) => {
+            const fill = highlight ? 'orange' : 'black';
+            const stroke = highlight ? 'orange' : 'black';
+            const rect = getSVGRect();
+            if (!rect) return;
 
-          const fixed_y = rect.bottom - y - rect.top;
-          return (
-            <circle
-              key={id}
-              cx={x}
-              cy={fixed_y}
-              r={5}
-              fill={fill}
-              stroke={stroke}
-            />
-          );
-        })}
-        {edges.map(({ id, highlight, start, end }) => {
-          const fill = highlight ? "orange" : "black";
-          const stroke = highlight ? "orange" : "black";
-          const rect = getSVGRect();
-          if (!rect) return;
+            const fixed_y = rect.bottom - y - rect.top;
+            return (
+              <circle
+                key={id}
+                cx={x}
+                cy={fixed_y}
+                r={5}
+                fill={fill}
+                stroke={stroke}
+              />
+            );
+          })}
+          {edges.map(({ id, highlight, start, end }) => {
+            const fill = highlight ? 'orange' : 'black';
+            const stroke = highlight ? 'orange' : 'black';
+            const rect = getSVGRect();
+            if (!rect) return;
 
-          const fixed_sy = rect.bottom - start.y - rect.top;
-          const fixed_ey = rect.bottom - end.y - rect.top;
-          return (
-            <line
-              key={`${start.x}_${end.y}_${id}`}
-              fill={fill}
-              stroke={stroke}
-              x1={start.x}
-              y1={fixed_sy}
-              x2={end.x}
-              y2={fixed_ey}
-            />
-          );
-        })}
-      </svg>
-      <div className="font-semibold flex items-center justify-between gap-x-6">
-        <div>
-          Cursor Position: ({cursorPosition.x}, {cursorPosition.y})
+            const fixed_sy = rect.bottom - start.y - rect.top;
+            const fixed_ey = rect.bottom - end.y - rect.top;
+            return (
+              <line
+                key={`${start.x}_${end.y}_${id}`}
+                fill={fill}
+                stroke={stroke}
+                x1={start.x}
+                y1={fixed_sy}
+                x2={end.x}
+                y2={fixed_ey}
+              />
+            );
+          })}
+        </svg>
+        <div className="font-semibold flex items-center justify-between gap-x-6">
+          <div>
+            Cursor Position: ({cursorPosition.x}, {cursorPosition.y})
+          </div>
+          <div>Points Count: {points.length}</div>
+          <div>Execution Time: {duration}ms</div>
+          <div>Visualizer State: {paused ? 'PAUSED' : 'PLAY'}</div>
         </div>
-        <div>Points Count: {points.length}</div>
-        <div>Execution Time: {duration}ms</div>
-        <div>Visualizer State: {paused ? "PAUSED" : "PLAY"}</div>
-      </div>
-      <Separator />
-      <div className="flex items-center justify-center gap-x-3">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button disabled={paused} onClick={() => setPaused(true)}>
-                <PauseIcon className="h-4 w-4 fill-current" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Pause Visualizer</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              {started ? (
-                <Button
-                  disabled={!paused || complete}
-                  onClick={() => setPaused(false)}
-                >
-                  <ResumeIcon className="h-4 w-4 fill-current" />
+        <Separator />
+        <div className="flex items-center justify-center gap-x-3">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button disabled={paused} onClick={() => setPaused(true)}>
+                  <PauseIcon className="h-4 w-4 fill-current" />
                 </Button>
-              ) : (
-                <Button onClick={start} disabled={!minimumMet || complete}>
-                  <PlayIcon className="h-4 w-4 fill-current" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Pause Visualizer</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                {started ? (
+                  <Button
+                    disabled={!paused || complete}
+                    onClick={() => setPaused(false)}
+                  >
+                    <ResumeIcon className="h-4 w-4 fill-current" />
+                  </Button>
+                ) : (
+                  <Button onClick={start} disabled={!minimumMet || complete}>
+                    <PlayIcon className="h-4 w-4 fill-current" />
+                  </Button>
+                )}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{started ? 'Resume Visualizer' : 'Play Visualizer'}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={handleStep} disabled={!minimumMet || complete}>
+                  <TrackNextIcon className="h-4 w-4 fill-current" />
                 </Button>
-              )}
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{started ? "Resume Visualizer" : "Play Visualizer"}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={handleStep} disabled={!minimumMet || complete}>
-                <TrackNextIcon className="h-4 w-4 fill-current" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Next Step</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={() => reset(true)}>
-                <ResetIcon className="h-4 w-4 fill-current" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Reset/Clear Canvas</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <div className="flex flex-col gap-y-3">
-          <Input
-            type="number"
-            min={3}
-            max={1000}
-            value={pointsCount}
-            onChange={(e) => {
-              setPointsCount(
-                Math.min(Math.max(Number.parseInt(e.target.value), 3), 1000),
-              );
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Next Step</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={() => reset(true)}>
+                  <ResetIcon className="h-4 w-4 fill-current" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Reset/Clear Canvas</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <div className="flex flex-col gap-y-3">
+            <Input
+              type="number"
+              min={3}
+              max={1000}
+              value={pointsCount}
+              onChange={(e) => {
+                setPointsCount(
+                  Math.min(Math.max(Number.parseInt(e.target.value), 3), 1000)
+                );
+              }}
+            />
+            <Button
+              disabled={!paused || started || (!started && complete)}
+              onClick={generateRandomPoints}
+            >
+              Generate Random Points
+            </Button>
+          </div>
+        </div>
+        <div className="flex flex-col items-center justify-center gap-y-3 mt-3">
+          <Slider
+            className="max-w-96"
+            defaultValue={[1000]}
+            min={MIN_INTERVAL}
+            max={MAX_INTERVAL}
+            step={50}
+            onValueChange={(e) => {
+              setInterval(e[0]);
             }}
           />
-          <Button
-            disabled={!paused || started || (!started && complete)}
-            onClick={generateRandomPoints}
-          >
-            Generate Random Points
-          </Button>
+          <div className="font-semibold">
+            Algorithm Step Duration: {interval / 1000}s
+          </div>
         </div>
-      </div>
-      <div className="flex flex-col items-center justify-center gap-y-3 mt-3">
-        <Slider
-          className="max-w-96"
-          defaultValue={[1000]}
-          min={MIN_INTERVAL}
-          max={MAX_INTERVAL}
-          step={50}
-          onValueChange={(e) => {
-            setInterval(e[0]);
-          }}
-        />
-        <div className="font-semibold">
-          Algorithm Step Duration: {interval / 1000}s
-        </div>
-      </div>
-    </Container>
+      </Container>
+    </Suspense>
   );
 };
 
