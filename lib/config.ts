@@ -19,6 +19,7 @@ export const algorithms: AlgorithmDetails[] = [
         for point in points:
           if(orient(p, point, q) < 0):
             valid = false
+            break
         if(valid):
           hull_edges += [Edge(p, q)]
       return hull_edges`
@@ -147,7 +148,8 @@ export const algorithms: AlgorithmDetails[] = [
     next point of the current point's own convex hull are considered. The tangents can be found in O(log(h))\
      time where h is the number of points on the mini hull. If m iterations pass before the convex hull is\
      finished, then Jarvis March returns an empty hull and starts Chan's Algorthm again with a doubled guess.",
-      "done": "Jarvis March has returned a non-empty list, so the guess was good enough and the hull is complete."
+      "done": "Jarvis March has returned a non-empty list, so the guess was good enough and the hull is complete.",
+      "restart":"Jarvis March returned an empty list, so Chan's Algorithm will restart with a squared guess for m."
     },
   },
 ];

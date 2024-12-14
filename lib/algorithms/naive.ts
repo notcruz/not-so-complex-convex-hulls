@@ -30,6 +30,7 @@ export class NaiveAlgorithm extends Algorithm {
           tempEdges.push({ id: -1, start: p, end: q });
           this.step_queue.enqueue({
             ...defaultStep,
+            highlightLines: "6-7",
             highlightPoints: [p.id, q.id, r.id],
             highlightEdges: [-1],
             points: points,
@@ -37,16 +38,34 @@ export class NaiveAlgorithm extends Algorithm {
             description: this.step_descriptions['naive'],
           });
           if (orient(p, r, q) >= 0) {
+            this.step_queue.enqueue({
+              ...defaultStep,
+              highlightLines: "8-9",
+              highlightPoints: [p.id, q.id, r.id],
+              highlightEdges: [-1],
+              points: points,
+              edges: tempEdges,
+              description: this.step_descriptions['naive'],
+            });
             valid = false;
+            break;
           }
         }
       }
       if (valid) {
         ch_edges.push({ id: ch_edges.length + 1, start: p, end: q });
+        this.step_queue.enqueue({
+              ...defaultStep,
+              highlightLines: "10-11",
+              points: points,
+              edges: [...ch_edges],
+              description: this.step_descriptions['naive'],
+            });
       }
     }
     this.step_queue.enqueue({
       ...defaultStep,
+      highlightLines: "12",
       points: points,
       edges: ch_edges,
     });

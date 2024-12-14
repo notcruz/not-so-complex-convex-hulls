@@ -45,6 +45,7 @@ export class ChansAlgorithm extends Algorithm {
         mini_hull_edges = [...mini_hull_edges, ...current_edges];
         this.step_queue.enqueue({
           ...defaultStep,
+          highlightLines: "7",
           points: points,
           edges: mini_hull_edges,
           description: this.step_descriptions['graham'],
@@ -54,6 +55,7 @@ export class ChansAlgorithm extends Algorithm {
       this.step_queue.enqueue({
         ...defaultStep,
         points: points,
+        highlightLines: "8",
         edges: mini_hull_edges,
         description: this.step_descriptions['graham_done'],
       });
@@ -65,8 +67,19 @@ export class ChansAlgorithm extends Algorithm {
         m
       );
       if (hull_maybe.length != 0) {
+        this.step_queue.enqueue({
+          ...defaultStep,
+          points: points,
+          edges: generate_edges_from_arr_closed(hull_maybe),
+          description: this.step_descriptions['done'],
+        });
         return;
       }
+      this.step_queue.enqueue({
+        ...defaultStep,
+        points: points,
+        description: this.step_descriptions['restart'],
+      });
       const next_m = m * m;
       if (next_m > n) {
         m = n;
@@ -104,7 +117,9 @@ export class ChansAlgorithm extends Algorithm {
       lowest_leftmost,
       subset_points,
       this.step_queue,
-      this.edge_counter
+      this.edge_counter,
+      this.step_descriptions['graham'],
+      "7"
     );
     const rem_i = subset_points.indexOf(lowest_leftmost);
     const [rem] = subset_points.splice(rem_i, 1);
@@ -113,7 +128,7 @@ export class ChansAlgorithm extends Algorithm {
 
     this.step_queue.enqueue({
       ...defaultStep,
-      highlightLines: '13',
+      highlightLines: '7',
       highlightPoints: [subset_points[0].id],
       points: all_points,
       edges: [...generate_edges_from_arr(stack), ...all_edges],
@@ -126,6 +141,7 @@ export class ChansAlgorithm extends Algorithm {
       if (stack.length > 1) {
         this.step_queue.enqueue({
           ...defaultStep,
+          highlightLines: '7',
           highlightPoints: [
             current_point.id,
             stack[stack.length - 2].id,
@@ -138,6 +154,7 @@ export class ChansAlgorithm extends Algorithm {
       } else if (stack.length === 1) {
         this.step_queue.enqueue({
           ...defaultStep,
+          highlightLines: '7',
           highlightPoints: [current_point.id],
           points: all_points,
           edges: [...generate_edges_from_arr(stack), ...all_edges],
@@ -157,6 +174,7 @@ export class ChansAlgorithm extends Algorithm {
         if (stack.length > 1) {
           this.step_queue.enqueue({
             ...defaultStep,
+            highlightLines: '7',
             highlightPoints: [
               current_point.id,
               stack[stack.length - 2].id,
@@ -170,6 +188,7 @@ export class ChansAlgorithm extends Algorithm {
           this.step_queue.enqueue({
             ...defaultStep,
             highlightPoints: [current_point.id],
+            highlightLines: '7',
             points: all_points,
             edges: [...generate_edges_from_arr(stack), ...all_edges],
             description: this.step_descriptions['graham'],
@@ -181,6 +200,7 @@ export class ChansAlgorithm extends Algorithm {
     const conv_hull = generate_edges_from_arr_closed(stack);
     this.step_queue.enqueue({
       ...defaultStep,
+      highlightLines: '7',
       points: all_points,
       edges: [...conv_hull, ...all_edges],
       description: this.step_descriptions['graham'],
@@ -288,6 +308,7 @@ export class ChansAlgorithm extends Algorithm {
         this.step_queue.enqueue({
           ...defaultStep,
           highlightEdges: [tempID],
+          highlightLines: '9',
           highlightPoints: [current_point.id, candidate.id],
           points: all_points,
           edges: [...tempEdges, ...all_edges],
@@ -310,6 +331,7 @@ export class ChansAlgorithm extends Algorithm {
     this.step_queue.enqueue({
       ...defaultStep,
       points: all_points,
+      highlightLines: '9',
       edges: conv_hull_edges,
       description: this.step_descriptions['jarvis'],
     });

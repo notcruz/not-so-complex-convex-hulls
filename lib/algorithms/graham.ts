@@ -73,6 +73,7 @@ export class GrahamScan extends Algorithm {
       if (stack.length > 1) {
         this.step_queue.enqueue({
           ...defaultStep,
+          highlightLines: "7-9",
           highlightPoints: [
             current_point.id,
             stack[stack.length - 2].id,
@@ -85,6 +86,7 @@ export class GrahamScan extends Algorithm {
       } else if (stack.length === 1) {
         this.step_queue.enqueue({
           ...defaultStep,
+          highlightLines: "7-9",
           highlightPoints: [current_point.id],
           points: points,
           edges: generate_edges_from_arr(stack),
@@ -104,6 +106,7 @@ export class GrahamScan extends Algorithm {
         if (stack.length > 1) {
           this.step_queue.enqueue({
             ...defaultStep,
+            highlightLines: "10",
             highlightPoints: [
               current_point.id,
               stack[stack.length - 2].id,
@@ -113,9 +116,10 @@ export class GrahamScan extends Algorithm {
             edges: generate_edges_from_arr(stack),
             description: this.step_descriptions['main_loop'],
           });
-        } else if ((stack.length = 1)) {
+        } else if ((stack.length == 1)) {
           this.step_queue.enqueue({
             ...defaultStep,
+            highlightLines: "10",
             highlightPoints: [current_point.id],
             points: points,
             edges: generate_edges_from_arr(stack),
@@ -123,8 +127,30 @@ export class GrahamScan extends Algorithm {
           });
         }
       }
+      if (stack.length > 1) {
+        this.step_queue.enqueue({
+            ...defaultStep,
+            highlightLines: "11",
+            highlightPoints: [
+              current_point.id,
+              stack[stack.length - 2].id,
+              stack[stack.length - 1].id,
+            ],
+            points: points,
+            edges: generate_edges_from_arr(stack),
+            description: this.step_descriptions['main_loop'],
+          });
+        } else if ((stack.length == 1)) {
+          this.step_queue.enqueue({
+            ...defaultStep,
+            highlightLines: "11",
+            points: points,
+            edges: generate_edges_from_arr(stack),
+            description: this.step_descriptions['main_loop'],
+          });
+        }
       stack.push(points[i]);
-    }
+  }
     const conv_hull = generate_edges_from_arr(stack);
     const connecting_edge = {
       id: -1,
@@ -135,6 +161,7 @@ export class GrahamScan extends Algorithm {
     conv_hull.push(connecting_edge);
     this.step_queue.enqueue({
       ...defaultStep,
+      highlightLines:"12",
       points: points,
       edges: conv_hull,
       description: this.step_descriptions['done'],

@@ -39,6 +39,7 @@ export class JarvisMarch extends Algorithm {
 
     this.step_queue.enqueue({
       ...defaultStep,
+      highlightLines: "4",
       highlightPoints: [right_most.id],
       points: points,
       description: this.step_descriptions['begin'],
@@ -53,6 +54,13 @@ export class JarvisMarch extends Algorithm {
           current_point == candidate ||
           candidate == best_candidate
         ) {
+        this.step_queue.enqueue({
+          ...defaultStep,
+          highlightLines:"9-10",
+          points: points,
+          edges: generate_edges_from_arr(convex_hull),
+          description: this.step_descriptions['main_loop'],
+        });
           continue;
         }
 
@@ -73,6 +81,7 @@ export class JarvisMarch extends Algorithm {
         this.step_queue.enqueue({
           ...defaultStep,
           highlightEdges: [-1, -2],
+          highlightLines: "9,11",
           highlightPoints: [current_point.id, candidate.id],
           points: points,
           edges: tempEdges,
@@ -80,14 +89,39 @@ export class JarvisMarch extends Algorithm {
         });
 
         if (orient(current_point, candidate, best_candidate) >= 0) {
+          this.step_queue.enqueue({
+            ...defaultStep,
+            highlightEdges: [-1, -2],
+            highlightLines: "12",
+            highlightPoints: [current_point.id, candidate.id],
+            points: points,
+            edges: tempEdges,
+            description: this.step_descriptions['main_loop'],
+          });
           best_candidate = candidate;
         }
       }
       if (best_candidate == right_most) {
+        this.step_queue.enqueue({
+            ...defaultStep,
+            highlightLines: "13-14",
+            highlightPoints: [right_most.id],
+            points: points,
+            edges: generate_edges_from_arr(convex_hull),
+            description: this.step_descriptions['main_loop'],
+          });
         break;
       }
+
       convex_hull.push(best_candidate);
       current_point = best_candidate;
+      this.step_queue.enqueue({
+            ...defaultStep,
+            highlightLines: "15-16",
+            points: points,
+            edges: generate_edges_from_arr(convex_hull),
+            description: this.step_descriptions['main_loop'],
+      });
     }
 
     const conv_hull_edges = generate_edges_from_arr(convex_hull);
@@ -100,6 +134,7 @@ export class JarvisMarch extends Algorithm {
     conv_hull_edges.push(connecting_edge);
     this.step_queue.enqueue({
       ...defaultStep,
+      highlightLines: "17",
       points: points,
       edges: conv_hull_edges,
       description: this.step_descriptions['done'],

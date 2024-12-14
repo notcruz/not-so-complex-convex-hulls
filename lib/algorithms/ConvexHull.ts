@@ -4,6 +4,7 @@ import { algorithms } from '../config';
 import { LinkedQueue } from '../queue';
 
 const merge_step_desc: string = algorithms[1].steps['begin'];
+const chan_desc: string = algorithms[3].steps['graham'];
 
 export class EdgeCounter {
   static count = 0;
@@ -80,7 +81,9 @@ export function mergeSortByAngle(
   anchor: Point,
   points: Point[],
   step_queue: LinkedQueue<AlgorithmStep>,
-  edge_counter?: EdgeCounter
+  edge_counter?: EdgeCounter,
+  def_message?: string,
+  def_line?: string
 ): Point[] {
   if (points.length <= 1) {
     return points;
@@ -98,7 +101,9 @@ export function mergeSortByAngle(
     anchor,
     left,
     step_queue,
-    edge_counter
+    edge_counter,
+    def_message, 
+    def_line
   );
   const sortedRight = mergeSortByAngle(
     full_points,
@@ -106,7 +111,10 @@ export function mergeSortByAngle(
     anchor,
     right,
     step_queue,
-    edge_counter
+    edge_counter,
+    def_message, 
+    def_line
+
   );
 
   // Merge the sorted halves
@@ -117,7 +125,9 @@ export function mergeSortByAngle(
     sortedLeft,
     sortedRight,
     step_queue,
-    edge_counter
+    edge_counter, 
+    def_message, 
+    def_line
   );
 }
 
@@ -128,7 +138,9 @@ function merge(
   left: Point[],
   right: Point[],
   step_queue: LinkedQueue<AlgorithmStep>,
-  edge_counter?: EdgeCounter
+  edge_counter?: EdgeCounter,
+  def_message?: string,
+  def_line?: string
 ): Point[] {
   const result: Point[] = [];
   let i = 0,
@@ -143,6 +155,7 @@ function merge(
     step_queue.enqueue({
       ...defaultStep,
       highlightPoints: [left[i].id, right[j].id],
+      highlightLines: def_line ? def_line : "5",
       points: points,
       highlightEdges: [next_id],
       edges: [
@@ -155,7 +168,7 @@ function merge(
         },
         ...edges,
       ],
-      description: merge_step_desc,
+      description: def_message ? def_message : merge_step_desc,
     });
 
     if (angleLeft <= angleRight) {
@@ -163,6 +176,7 @@ function merge(
       step_queue.enqueue({
         ...defaultStep,
         highlightPoints: [left[i].id, right[j].id],
+        highlightLines: def_line ? def_line : "5",
         points: points,
         highlightEdges: [next_id],
         edges: [
@@ -175,7 +189,7 @@ function merge(
           },
           ...edges,
         ],
-        description: merge_step_desc,
+        description: def_message ? def_message : merge_step_desc,
       });
       result.push(left[i]);
       i++;
@@ -184,6 +198,7 @@ function merge(
       step_queue.enqueue({
         ...defaultStep,
         highlightPoints: [left[i].id, right[j].id],
+        highlightLines: def_line ? def_line : "5",
         points: points,
         highlightEdges: [next_id],
         edges: [
@@ -196,7 +211,7 @@ function merge(
           { id: next_id, highlight: true, start: anchor, end: right[j] },
           ...edges,
         ],
-        description: merge_step_desc,
+        description: def_message ? def_message : merge_step_desc,
       });
       result.push(right[j]);
       j++;
@@ -209,13 +224,14 @@ function merge(
     step_queue.enqueue({
       ...defaultStep,
       highlightPoints: [left[i].id],
+      highlightLines: def_line ? def_line : "5",
       points: points,
       highlightEdges: [next_id],
       edges: [
         { id: next_id, highlight: true, start: anchor, end: left[i] },
         ...edges,
       ],
-      description: merge_step_desc,
+      description: def_message ? def_message : merge_step_desc,
     });
     result.push(left[i]);
     i++;
@@ -226,13 +242,14 @@ function merge(
     step_queue.enqueue({
       ...defaultStep,
       highlightPoints: [right[j].id],
+      highlightLines: def_line ? def_line : "5",
       points: points,
       highlightEdges: [next_id],
       edges: [
         { id: next_id, highlight: true, start: anchor, end: right[j] },
         ...edges,
       ],
-      description: merge_step_desc,
+      description: def_message ? def_message : merge_step_desc,
     });
     result.push(right[j]);
     j++;
