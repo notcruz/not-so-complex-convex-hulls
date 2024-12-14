@@ -35,7 +35,7 @@ const MIN_INTERVAL = 10;
 const placeHolderDecription =
   'Step through an algorithm to see described steps.';
 const sharedStepDescription = atom(placeHolderDecription);
-const sharedHighlightLine = atom("0");
+const sharedHighlightLine = atom('0');
 
 export default function Visualizer() {
   const algorithm = useAtomValue(algorithmAtom);
@@ -217,7 +217,7 @@ const PickYourPoints = () => {
     setStarted(true);
     setPaused(false);
     setDescription(placeHolderDecription);
-    setLine("0")
+    setLine('0');
 
     const start = Date.now();
 
@@ -258,7 +258,7 @@ const PickYourPoints = () => {
     setStarted(false);
     setPaused(true);
     setDescription(placeHolderDecription);
-    setLine("0")
+    setLine('0');
     setEdges([]);
     setAlgo(undefined);
   };
@@ -320,7 +320,7 @@ const PickYourPoints = () => {
         if (!result) return;
 
         setDescription(placeHolderDecription);
-        setLine("0");
+        setLine('0');
         updateStates(result);
       }
     },
@@ -452,9 +452,18 @@ const PickYourPoints = () => {
               max={1000}
               value={pointsCount}
               onChange={(e) => {
-                setPointsCount(
-                  Math.min(Math.max(Number.parseInt(e.target.value), 3), 1000)
-                );
+                setPointsCount(Number.parseInt(e.target.value));
+              }}
+              onBlur={() => {
+                const value = pointsCount;
+
+                if (value < 3) {
+                  setPointsCount(3);
+                } else if (value > 1000) {
+                  setPointsCount(1000);
+                } else {
+                  setPointsCount(value);
+                }
               }}
             />
             <Button
