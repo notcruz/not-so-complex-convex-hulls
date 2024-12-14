@@ -22,6 +22,7 @@ export class ChansAlgorithm extends Algorithm {
 
     this.step_queue.enqueue({
       ...defaultStep,
+      highlightLines: "1,2,3",
       points: points,
       description: this.step_descriptions['begin'],
     });
@@ -69,6 +70,7 @@ export class ChansAlgorithm extends Algorithm {
       if (hull_maybe.length != 0) {
         this.step_queue.enqueue({
           ...defaultStep,
+          highlightLines: "11",
           points: points,
           edges: generate_edges_from_arr_closed(hull_maybe),
           description: this.step_descriptions['done'],
@@ -77,6 +79,7 @@ export class ChansAlgorithm extends Algorithm {
       }
       this.step_queue.enqueue({
         ...defaultStep,
+        highlightLines: "12",
         points: points,
         description: this.step_descriptions['restart'],
       });

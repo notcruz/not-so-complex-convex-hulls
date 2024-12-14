@@ -56,7 +56,7 @@ export class JarvisMarch extends Algorithm {
         ) {
         this.step_queue.enqueue({
           ...defaultStep,
-          highlightLines:"9-10",
+          highlightLines:"9,10",
           points: points,
           edges: generate_edges_from_arr(convex_hull),
           description: this.step_descriptions['main_loop'],
@@ -81,7 +81,7 @@ export class JarvisMarch extends Algorithm {
         this.step_queue.enqueue({
           ...defaultStep,
           highlightEdges: [-1, -2],
-          highlightLines: "9,11",
+          highlightLines: "8,9,11",
           highlightPoints: [current_point.id, candidate.id],
           points: points,
           edges: tempEdges,
@@ -104,7 +104,7 @@ export class JarvisMarch extends Algorithm {
       if (best_candidate == right_most) {
         this.step_queue.enqueue({
             ...defaultStep,
-            highlightLines: "13-14",
+            highlightLines: "13,14",
             highlightPoints: [right_most.id],
             points: points,
             edges: generate_edges_from_arr(convex_hull),

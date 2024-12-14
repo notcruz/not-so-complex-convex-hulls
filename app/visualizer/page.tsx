@@ -35,6 +35,7 @@ const MIN_INTERVAL = 10;
 const placeHolderDecription =
   'Step through an algorithm to see described steps.';
 const sharedStepDescription = atom(placeHolderDecription);
+const sharedHighlightLine = atom("0");
 
 export default function Visualizer() {
   const algorithm = useAtomValue(algorithmAtom);
@@ -75,6 +76,7 @@ const Container = (props: ContainerProps) => {
 
 const AlgorithmCode = () => {
   const algorithm = useAtomValue(algorithmAtom);
+  const highlightLine = useAtomValue(sharedHighlightLine);
 
   return (
     <Container title="Code Block" className="col-span-2">
@@ -83,6 +85,7 @@ const AlgorithmCode = () => {
         language={'python'}
         theme={atomOneDark}
         showLineNumbers
+        highlight={highlightLine}
       />
     </Container>
   );
@@ -92,6 +95,7 @@ const PickYourPoints = () => {
   // atoms
   const [paused, setPaused] = useState(false);
   const [, setDescription] = useAtom(sharedStepDescription);
+  const [, setLine] = useAtom(sharedHighlightLine);
   const algorithm = useAtomValue(algorithmAtom);
 
   // states
@@ -213,6 +217,7 @@ const PickYourPoints = () => {
     setStarted(true);
     setPaused(false);
     setDescription(placeHolderDecription);
+    setLine("0")
 
     const start = Date.now();
 
@@ -253,6 +258,7 @@ const PickYourPoints = () => {
     setStarted(false);
     setPaused(true);
     setDescription(placeHolderDecription);
+    setLine("0")
     setEdges([]);
     setAlgo(undefined);
   };
@@ -279,8 +285,10 @@ const PickYourPoints = () => {
     highlightPoints,
     edges,
     highlightEdges,
+    highlightLines,
   }: AlgorithmStep) => {
     setDescription(description);
+    setLine(highlightLines);
     setPoints(
       points.map((point) => {
         return {
@@ -312,6 +320,7 @@ const PickYourPoints = () => {
         if (!result) return;
 
         setDescription(placeHolderDecription);
+        setLine("0");
         updateStates(result);
       }
     },
