@@ -213,9 +213,9 @@ const PickYourPoints = () => {
   };
 
   // update states once visualizer starts
-  const start = () => {
+  const start = (paused: boolean) => {
     setStarted(true);
-    setPaused(false);
+    setPaused(paused);
     setDescription(placeHolderDecription);
     setLine('0');
 
@@ -265,7 +265,7 @@ const PickYourPoints = () => {
 
   // handler for an algorithm step
   const handleStep = () => {
-    if (!started) start();
+    if (!started) start(true);
     if (!algo) return;
 
     if (algo.hasNextStep()) {
@@ -411,7 +411,10 @@ const PickYourPoints = () => {
                     <ResumeIcon className="h-4 w-4 fill-current" />
                   </Button>
                 ) : (
-                  <Button onClick={start} disabled={!minimumMet || complete}>
+                  <Button
+                    onClick={() => start(false)}
+                    disabled={!minimumMet || complete}
+                  >
                     <PlayIcon className="h-4 w-4 fill-current" />
                   </Button>
                 )}
