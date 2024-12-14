@@ -4,7 +4,6 @@ import { algorithms } from '../config';
 import { LinkedQueue } from '../queue';
 
 const merge_step_desc: string = algorithms[1].steps['begin'];
-const chan_desc: string = algorithms[3].steps['graham'];
 
 export class EdgeCounter {
   static count = 0;

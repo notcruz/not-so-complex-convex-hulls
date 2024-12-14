@@ -35,7 +35,6 @@ const MIN_INTERVAL = 10;
 const placeHolderDecription =
   'Step through an algorithm to see described steps.';
 const sharedStepDescription = atom(placeHolderDecription);
-const sharedPauseState = atom(true);
 
 export default function Visualizer() {
   const algorithm = useAtomValue(algorithmAtom);
@@ -91,7 +90,7 @@ const AlgorithmCode = () => {
 
 const PickYourPoints = () => {
   // atoms
-  const [paused, setPaused] = useAtom(sharedPauseState);
+  const [paused, setPaused] = useState(false);
   const [, setDescription] = useAtom(sharedStepDescription);
   const algorithm = useAtomValue(algorithmAtom);
 
