@@ -62,36 +62,41 @@ const Navbar = () => {
       <Button asChild variant={'ghost'}>
         <a href={'/'}>Home</a>
       </Button>
-      {!onVisualizer && (
+      <div className="flex gap-x-3">
         <Button asChild>
-          <a href={'/visualizer'}>Visualizer</a>
+          <a href={'/about'}>About</a>
         </Button>
-      )}
-      {onVisualizer && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className="w-48" variant={'outline'}>
-              Picker
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            <DropdownMenuLabel>Algorithms</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup
-              value={algorithm?.type}
-              onValueChange={onValueChange}
-            >
-              {algorithms.map(({ type, name }) => {
-                return (
-                  <DropdownMenuRadioItem key={type} value={type}>
-                    {name}
-                  </DropdownMenuRadioItem>
-                );
-              })}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+        {!onVisualizer && (
+          <Button asChild>
+            <a href={'/visualizer'}>Visualizer</a>
+          </Button>
+        )}
+        {onVisualizer && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="w-48" variant={'outline'}>
+                Picker
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              <DropdownMenuLabel>Algorithms</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup
+                value={algorithm?.type}
+                onValueChange={onValueChange}
+              >
+                {algorithms.map(({ type, name }) => {
+                  return (
+                    <DropdownMenuRadioItem key={type} value={type}>
+                      {name}
+                    </DropdownMenuRadioItem>
+                  );
+                })}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
     </nav>
   );
 };
