@@ -12,7 +12,6 @@ import { Separator } from '@/components/ui/separator';
 import { algorithms } from '@/lib/config';
 import { cn } from '@/lib/utils';
 import { Coordinates, Mafs, Plot, Point, Theme, useStopwatch } from 'mafs';
-import Link from 'next/link';
 import { Suspense, useEffect, useState } from 'react';
 
 const rate = 0.75;

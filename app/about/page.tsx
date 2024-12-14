@@ -4,8 +4,6 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
-const rate = 0.75;
-
 export default function About() {
   return (
     <Suspense>
