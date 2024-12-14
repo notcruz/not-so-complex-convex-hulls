@@ -40,11 +40,11 @@ export const algorithms: AlgorithmDetails[] = [
     },
     code:
       `def graham_scan(points):
-      stack = []
       # p0 is lowest and leftmost point
       p0 = findP0(points)
       # Sort points by angle to lowest left most point
       mergesort_points_by_angle_to_anchor(points, p0)
+      stack = []
       for point in points:
         while (len(stack) > 1 
               and orient(stack[-2], stack[-1], point) < 0):

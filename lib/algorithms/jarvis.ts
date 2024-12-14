@@ -63,10 +63,16 @@ export class JarvisMarch extends Algorithm {
           start: current_point,
           end: candidate,
         });
+        tempEdges.push({
+          id: -2,
+          highlight: true,
+          start: current_point,
+          end: best_candidate,
+        });
 
         this.step_queue.enqueue({
           ...defaultStep,
-          highlightEdges: [-1],
+          highlightEdges: [-1, -2],
           highlightPoints: [current_point.id, candidate.id],
           points: points,
           edges: tempEdges,
